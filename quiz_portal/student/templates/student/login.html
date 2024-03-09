@@ -1,0 +1,58 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="{% static 'student/styles/styles.css' %}" />
+</head>
+
+<body>
+    <div class="container">
+        <div class="Frame-4">
+            <div class="image-container">
+                <div class="image-container-1">
+                    <img src="{% static 'student/images/login-logo.png' %}">
+                </div>
+            </div>
+            <div class="main-container">
+                <div class="username-container">
+                    <label for="username" class="Username">Username</label>
+                    <input type="text" id="username" class="username-box" name="username" placeholder=" ">
+                </div>
+                <div class="password-container">
+                    <label for="password" class="Password">
+                        <span class="Password">
+                            Password
+                        </span>
+                    </label>
+                    <input type="password" class="password-box" id="password" name="password" placeholder=" ">
+                </div>
+
+                <div class="Remember-container">
+                    <input type="checkbox" class="Remember-checkbox">
+
+                    <span class="Remember-me">
+                        Remember me
+                    </span>
+                </div>
+
+                <div class="Forgot-container">
+                    <span class="Forgot-Password">
+                        Forgot Password
+                    </span>
+                </div>
+            </div>
+
+            <button class="login-button">
+                <span class="Login">
+                    Login
+                </span>
+            </button>
+        </div>
+    </div>
+</body>
+
+</html>
