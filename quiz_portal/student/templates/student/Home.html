@@ -1,0 +1,392 @@
+{% extends 'student/main.html' %}
+
+{% block content %}
+<body>
+    <main>        
+        <!----------- Quiz Progress ------->
+        <div class="Container-Quizzes-progress">
+            <div class="containerHeader">
+                <h1 class="Quiz-Progress">
+                    Quiz Progress
+                </h1>
+            </div>
+            
+            <div class="backgroundColourProgressQuizzes">
+                <div class="ProgressQuizzesText">
+                    <br>
+                    <span class="Overall-Progress-of-Quizzes">
+                        Overall Progress of Quizzes
+                    </span>
+
+                    <div class="progress1">
+                        <div class="progressQuizzesComplete"></div>
+                        <span class="Pending-Quizzes">
+                            Completed Quizzes - 3
+                        </span>
+                    </div>
+
+                    <div class="progress1">
+                        <div class="progressQuizzesPending"></div>
+                        <span class="Pending-Quizzes">
+                            Pending Quizzes - 7
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="upcomingQuizborder">
+                <div class="upcomingQuizheader">
+                    <h1 class="Upcoming-Quizzes-Due">
+                        Upcoming Quizzes Due
+                    </h1>
+                </div>
+                <div class="FrContainerborder1">
+                    <span class="Course---Date--">
+                        Course -
+                        Date -
+                    </span>
+                    <span class="upcomingquizeCource">
+                        Quiz on Data Structures<br>
+                        Feb 26
+                    </span>
+                </div>
+                <div class="FrContainerborder1">
+                    <span class="Course---Date--">
+                        Course -
+                        Date -
+                    </span>
+                    <span class="upcomingquizeCource">
+                        Quiz on AIML<br>
+                        Feb 28
+                    </span>
+                </div>
+                <div class="FrContainerborder1">
+                    <span class="Course---Date--">
+                        Course -
+                        Date -
+                    </span>
+                    <span class="upcomingquizeCource">
+                        Quiz on Operating System<br>
+                        March 05
+                    </span>
+                </div>
+                <div class="FrContainerborder1">
+                    <span class="Course---Date--">
+                        Course -
+                        Date -
+                    </span>
+                    <span class="upcomingquizeCource">
+                        Quiz on DBMS <br>
+                        March 09
+                    </span>
+                </div>
+            </div>
+        </div>
+        <br>
+        
+
+        <!---------- my courses ---------------->
+        <div class="containerCourses">
+            <div class="containerHeader">
+                <h1 class="Quiz-Progress">
+                    My Courses
+                </h1>
+            </div>
+            <div class="courses-current-sem-container">
+                <span class="Current-Semester">
+                    Current Semester
+                  </span>
+                  <div class="Expand-Arrow">
+                    <p><i class="arrow down"></i></p>
+                  </div>
+            </div>
+            <input type="text"  class="course-search-container" placeholder="Search courses" style="font-size: 20px; color:rgba(0, 0, 0, 0.15);">
+
+            <div class="layout">
+                <div class="Courses-All-display-container">
+                    <div class="imagecoursebox">
+                        <img class="subjectImage" src="https://raw.githubusercontent.com/kunaladarsh/QuizMunch-Frontend/main/Quiz%20Munch/Image/course_name_1.png">
+                    </div>
+                    <div class="courses-year">
+                        <span>
+                            2023-24
+                        </span>
+                        <span class="courses-name">
+                            Artifical Intelligence & Machine Learning
+                        </span>
+                        <span class="Instructor-name">
+                            Instructor - Mr. Dipen Sharma
+                        </span>
+                    </div>
+                    <div class="Total-Quizes-text-container">
+                        <span class="Total-Quizes">
+                            Total Quizes :
+                            <span class="text-style-1">3</span>
+                        </span>
+                        <span class="Courses-Upcoming-Quiz">
+                            <span class="text-style-1">Upcoming :</span>
+                            Quiz 2, 28 Feb,23
+                            <span class="text-style-2"></span>
+                        </span>
+                        <span class="courses-Completed-text">
+                            Completed
+                            <span class="text-style-1">:</span>
+                            <span class="text-style-2">1/3</span>
+                            <span class="text-style-3"></span>
+                            <div class="Courses-complete-bar-final">   
+                                <div class="Courses-complete-bar-1">                   
+                                    <div class="Courses-complete-bar-2">
+                                    </div>
+                                </div>
+                            </div>
+                        </span>
+                        <div class="courses-check-details-buttom">
+                            <span class="Check-Details">
+                                Check Details
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- some other  courses shows -->
+                <div class="Courses-All-display-container">
+                    <div class="imagecoursebox">
+                        <img class="subjectImage" src="https://raw.githubusercontent.com/kunaladarsh/QuizMunch-Frontend/main/Quiz%20Munch/Image/course_name_1.png">
+                    </div>
+                    <div class="courses-year">
+                        <span>
+                            2023-24
+                        </span>
+                        <span class="courses-name">
+                            Artifical Intelligence & Machine Learning
+                        </span>
+                        <span class="Instructor-name">
+                            Instructor - Mr. Dipen Sharma
+                        </span>
+                    </div>
+                    <div class="Total-Quizes-text-container">
+                        <span class="Total-Quizes">
+                            Total Quizes : 
+                            <span class="text-style-1">3</span>
+                        </span>
+                        <span class="Courses-Upcoming-Quiz">
+                            <span class="text-style-1">Upcoming :</span>
+                            Quiz 2, 28 Feb,23
+                            <span class="text-style-2"></span>
+                        </span>
+                        <span class="courses-Completed-text">
+                            Completed
+                            <span class="text-style-1">:</span>
+                            <span class="text-style-2">1/3</span>
+                            <span class="text-style-3"></span>   
+                            <div class="Courses-complete-bar-final">   
+                                <div class="Courses-complete-bar-1">                   
+                                    <div class="Courses-complete-bar-2">
+                                    </div>
+                                </div>
+                            </div>
+                        </span>
+                        <div class="courses-check-details-buttom">
+                            <span class="Check-Details">
+                                Check Details
+                            </span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="Courses-All-display-container">
+                    <div class="imagecoursebox">
+                        <img class="subjectImage" src="https://raw.githubusercontent.com/kunaladarsh/QuizMunch-Frontend/main/Quiz%20Munch/Image/course_name_1.png">
+                    </div>
+                    <div class="courses-year">
+                        <span>
+                            2023-24
+                        </span>
+                        <span class="courses-name">
+                            Artifical Intelligence & Machine Learning
+                        </span>
+                        <span class="Instructor-name">
+                            Instructor - Mr. Dipen Sharma
+                        </span>
+                    </div>
+                    <div class="Total-Quizes-text-container">
+                        <span class="Total-Quizes">
+                            Total Quizes :
+                            <span class="text-style-1">3</span>
+                        </span>
+                        <span class="Courses-Upcoming-Quiz">
+                            <span class="text-style-1">Upcoming :</span>
+                            Quiz 2, 28 Feb,23
+                            <span class="text-style-2"></span>
+                        </span>
+                        <span class="courses-Completed-text">
+                            Completed
+                            <span class="text-style-1">:</span>
+                            <span class="text-style-2">1/3</span>
+                            <span class="text-style-3"></span>
+                            <div class="Courses-complete-bar-final">   
+                                <div class="Courses-complete-bar-1">                   
+                                    <div class="Courses-complete-bar-2">
+                                    </div>
+                                </div>
+                            </div>
+                        </span>
+                        <div class="courses-check-details-buttom">
+                            <span class="Check-Details">
+                                Check Details
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="Courses-All-display-container">
+                    <div class="imagecoursebox">
+                        <img class="subjectImage" src="https://raw.githubusercontent.com/kunaladarsh/QuizMunch-Frontend/main/Quiz%20Munch/Image/course_name_1.png">
+                    </div>
+                    <div class="courses-year">
+                        <span>
+                            2023-24
+                        </span>
+                        <span class="courses-name">
+                            Artifical Intelligence & Machine Learning
+                        </span>
+                        <span class="Instructor-name">
+                            Instructor - Mr. Dipen Sharma
+                        </span>
+                    </div>
+                    <div class="Total-Quizes-text-container">
+                        <span class="Total-Quizes">
+                            Total Quizes :
+                            <span class="text-style-1">3</span>
+                        </span>
+                        <span class="Courses-Upcoming-Quiz">
+                            <span class="text-style-1 Total-Quizes">Upcoming :</span>
+                            Quiz 2, 28 Feb,23
+                            <span class="text-style-2"></span>
+                        </span>
+                        <span class="courses-Completed-text">
+                            Completed
+                            <span class="text-style-1">:</span>
+                            <span class="text-style-2">1/3</span>
+                            <span class="text-style-3"></span>
+                            <div class="Courses-complete-bar-final">   
+                                <div class="Courses-complete-bar-1">                   
+                                    <div class="Courses-complete-bar-2">
+                                    </div>
+                                </div>
+                            </div>
+                        </span>
+
+                        <div class="courses-check-details-buttom">
+                            <span class="Check-Details">
+                                Check Details
+                            </span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="Courses-All-display-container">
+                    <div class="imagecoursebox">
+                        <img class="subjectImage" src="https://raw.githubusercontent.com/kunaladarsh/QuizMunch-Frontend/main/Quiz%20Munch/Image/course_name_1.png">
+                    </div>
+                    <div class="courses-year">
+                        <span>
+                            2023-24
+                        </span>
+                        <span class="courses-name">
+                            Artifical Intelligence & Machine Learning
+                        </span>
+                        <span class="Instructor-name">
+                            Instructor - Mr. Dipen Sharma
+                        </span>
+                    </div>
+                    <div class="Total-Quizes-text-container">
+                        <span class="Total-Quizes">
+                            Total Quizes :
+                            <span class="text-style-1">3</span>
+                        </span>
+                        <span class="Courses-Upcoming-Quiz">
+                            <span class="text-style-1">Upcoming :</span>
+                            Quiz 2, 28 Feb,23
+                            <span class="text-style-2"></span>
+                        </span>
+                        <span class="courses-Completed-text">
+                            Completed
+                            <span class="text-style-1">:</span>
+                            <span class="text-style-2">1/3</span>
+                            <span class="text-style-3"></span>
+                            <div class="Courses-complete-bar-final">   
+                                <div class="Courses-complete-bar-1">                   
+                                    <div class="Courses-complete-bar-2">
+                                    </div>
+                                </div>
+                            </div>
+                        </span>
+
+                        <div class="courses-check-details-buttom">
+                            <span class="Check-Details">
+                                Check Details
+                            </span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="Courses-All-display-container">
+                    <div class="imagecoursebox">
+                        <img class="subjectImage" src="https://raw.githubusercontent.com/kunaladarsh/QuizMunch-Frontend/main/Quiz%20Munch/Image/course_name_1.png">
+                    </div>
+                    <div class="courses-year">
+                        <span>
+                            2023-24
+                        </span>
+                        <span class="courses-name">
+                            Artifical Intelligence & Machine Learning
+                        </span>
+                        <span class="Instructor-name">
+                            Instructor - Mr. Dipen Sharma
+                        </span>
+                    </div>
+                    <div class="Total-Quizes-text-container">
+                        <span class="Total-Quizes">
+                            Total Quizes :
+                            <span class="text-style-1">3</span>
+                        </span>
+                        <span class="Courses-Upcoming-Quiz">
+                            <span class="text-style-1">Upcoming :</span>
+                            Quiz 2, 28 Feb,23
+                            <span class="text-style-2"></span>
+                        </span>
+                        <span class="courses-Completed-text">
+                            Completed
+                            <span class="text-style-1">:</span>
+                            <span class="text-style-2">1/3</span>
+                            <span class="text-style-3"></span>
+                            <div class="Courses-complete-bar-final">   
+                                <div class="Courses-complete-bar-1">                   
+                                    <div class="Courses-complete-bar-2">
+                                    </div>
+                                </div>
+                            </div>
+                        </span>
+
+                        <div class="courses-check-details-buttom">
+                            <span class="Check-Details">
+                                Check Details
+                            </span>
+                        </div>
+
+                    </div>
+                </div>
+                
+                <!-- courese shows ended -->
+
+
+            </div>
+        </div>
+    </main>
+</body>
+{% endblock content %}

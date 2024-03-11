@@ -1,3 +1,6 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import StudentProfile,CoreStream
+
+admin.site.register(StudentProfile)
+admin.site.register(CoreStream)
