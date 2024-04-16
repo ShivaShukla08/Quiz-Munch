@@ -1,0 +1,74 @@
+{% extends 'teacher/main.html' %}
+
+{% block content %}
+
+<body>
+    <main>
+        <!----------- Quiz Progress ------->
+        <br>
+        <!---------- my courses ---------------->
+        <div class="containerCourses">  
+            <div class="containerHeader">
+                <h1 class="Quiz-Progress">
+                    Dashboard
+                </h1>
+            </div>
+            <div class="courses-current-sem-container">
+                <span class="Current-Semester">
+                    Current Semester
+                </span>
+                <div class="Expand-Arrow">
+                    <p><i class="arrow down"></i></p>
+                </div>
+            </div>
+            <input type="text" class="course-search-container" placeholder="Search courses"
+                style="font-size: 20px; color:rgba(0, 0, 0, 0.15);">
+
+            <div class="layout">
+                {% for course in details %}
+                <div class="Courses-All-display-container">
+                    <div class="imagecoursebox">
+                        <!-- Assuming you have a field for image URL in your TeacherCourses model -->
+                        <img class="subjectImage" src="https://raw.githubusercontent.com/kunaladarsh/QuizMunch-Frontend/main/Quiz%20Munch/Image/course_name_1.png">
+
+                    </div>
+                    <div class="courses-year">
+                        <span class="courses-name">
+                            {{ course.course_name }}
+                        </span>
+                        <!-- Assuming you have an Instructor field in your TeacherCourses model -->
+                        <span class="Instructor-name">
+                            Instructor - {{ course.teacher.name }}
+                        </span>
+                    </div>
+                    <div class="Total-Quizes-text-container">
+                        <span class="Total-Quizes">
+                            Batch: {{ course.batch }}
+                        </span>
+                        <!-- Assuming you have a field for completed quizzes in your TeacherCourses model -->
+                        <span class="courses-Completed-text">
+                            Completed
+                            <span class="text-style-1">:</span>
+                            <span class="text-style-2">{{ course.completed_quizzes }}/3</span>
+                            <span class="text-style-3"></span>
+                            <div class="Courses-complete-bar-final">
+                                <div class="Courses-complete-bar-1">
+                                    <div class="Courses-complete-bar-2">
+                                    </div>
+                                </div>
+                            </div>
+                        </span>
+                        <div class="courses-check-details-buttom">
+                            <a href="{% url 'course_detail' course.id %}" class="Check-Details">
+                                Check Details
+                            </a>
+                            
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </main>
+</body>
+{% endblock content %}

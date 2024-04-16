@@ -1,0 +1,79 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz MUNCH</title>
+    <link rel="stylesheet" href="{% static 'student/styles/Homestyle.css' %}" />
+    <style>
+        /* Style for the popup */
+        .popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            display: none;
+            /* Hidden by default */
+        }
+
+        /* Style for links inside popup */
+        .popup a {
+            display: block;
+            margin-bottom: 10px;
+            text-decoration: none;
+            color: black;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="headerConatiner">
+            <div class="logo">
+                <span class="logo_text">
+                    QUIZ MUNCH
+                </span>
+            </div>
+            <div class="headerhome">
+                <span class="Home">
+                    <a href="{% url 'teacher_home' %}">Dashboard</a>
+                </span>
+                <span class="Home">
+                    <a href="{% url 'create_quiz' %}">Create_Quiz</a>
+                </span>
+                <span class="Home">
+                    Profile
+                </span>
+                <span class="Home">
+                    Feedback
+                </span>
+            </div>
+            <div class="headerNotification">
+                <div class="Bell">
+                </div>
+                <span class="notificationtext">
+                    Notifications
+                </span>
+                <div class="header-profile-container" id="logout-link">
+                    <a href="{% url 'logoutuser' %}">Logout</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Popup for profile functionality -->
+    <div class="popup" id="popup">
+        <a href="#">Profile</a>
+        <a href="{% url 'logoutuser' %}">Logout</a>
+    </div>
+
+
+</body>
+
+</html>

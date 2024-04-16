@@ -1,3 +1,8 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import TeacherProfile,TeacherCourse,Quiz,QuizQuestion
+
+admin.site.register(TeacherProfile)
+admin.site.register(TeacherCourse)
+admin.site.register(Quiz)
+admin.site.register(QuizQuestion)

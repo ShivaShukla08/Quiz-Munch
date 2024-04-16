@@ -1,0 +1,12 @@
+{% extends 'teacher/main.html' %}
+
+{% block content %}
+<title>Create Quiz</title>
+<h2>Create Quiz</h2>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Create Quiz</button>
+</form>
+
+{% endblock content %}
