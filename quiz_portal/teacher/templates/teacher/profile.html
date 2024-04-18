@@ -1,0 +1,39 @@
+{% extends 'teacher/main.html' %}
+
+{% block content %}
+<main>
+    {% for profile in profile_details %}
+    <div class="Container-profile">
+    <div class="profile-container">
+        <div class="profile-header">
+        </div>
+        <div class="profile-info">
+            <div class="profile-picture">
+                <img src="https://shorturl.at/dgJP1" alt="Profile Picture">
+            </div>
+            <div class="profile-details">
+                <div class="name_profile">
+                    <strong>{{profile.id}} ({{profile.name}})</strong>
+                    <div class="phone">
+                        <img src="https://myupes-beta.upes.ac.in/connectportal/assets/img/icons/phone.png">  
+                    </div> 
+                    <span class="phoneno1">
+                        {{profile.contact_no}}
+                    </span>
+                    <div class="phone">
+                        <img src="https://myupes-beta.upes.ac.in/connectportal/assets/img/icons/mail.png">  
+                    </div> 
+                    <span class="phoneno1">
+                        {{profile.personal_mail}}
+                    </span>
+                </div> 
+            </div>
+        </div>
+        <div class="ProgramDetails">
+            <p><b>Gender:</b> {{profile.gender}}</p>
+        </div>  
+    </div>
+   </div>
+   {% endfor %}
+</main>
+{% endblock content %}

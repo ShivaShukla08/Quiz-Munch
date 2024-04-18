@@ -1,1 +1,74 @@
-Helooojjjj
+{% extends 'teacher/main.html' %}
+
+{% block content %}
+
+<body>
+    <main>
+        <!----------- Quiz Progress ------->
+        <br>
+        <!---------- my courses ---------------->
+        <div class="containerCourses">  
+            <div class="containerHeader">
+                <h1 class="Quiz-Progress">
+                    Dashboard
+                </h1>
+            </div>
+     
+
+            <div class="layout">
+                {% for course in details %}
+                <div class="Courses-All-display-container">
+                    <div class="imagecoursebox">
+                        <!-- Assuming you have a field for image URL in your TeacherCourses model -->
+                        <img class="subjectImage" src="https://raw.githubusercontent.com/kunaladarsh/QuizMunch-Frontend/main/Quiz%20Munch/Image/course_name_1.png">
+
+                    </div>
+                    <div class="courses-year">
+                        <span class="courses-name">
+                           Quiz Name: {{ course.quiz_name }}
+                        </span>
+                        <span class="Instructor-name">
+                            Start - {{ course.start_time }} - {{ course.start_date }}
+                        </span>
+                        <span class="Instructor-name">
+                            End - {{ course.end_time }} - {{ course.end_date }}
+                        </span>
+                    </div>
+                    <div class="Total-Quizes-text-container">
+                        <span class="Total-Quizes">
+                            Batch: {{ course.batch }}
+                        </span>
+                        <!-- Assuming you have a field for completed quizzes in your TeacherCourses model -->
+                        <span class="courses-Completed-text">
+                            Completed
+                            <span class="text-style-1">:</span>
+                            <span class="text-style-2">{{ course.completed_quizzes }}/3</span>
+                            <span class="text-style-3"></span>
+                            <div class="Courses-complete-bar-final">
+                                <div class="Courses-complete-bar-1">
+                                    <div class="Courses-complete-bar-2">
+                                    </div>
+                                </div>
+                            </div>
+                        </span>
+                        <div class="courses-check-details-buttom">
+                            <a href="{% url 'quizquestions' course.uuid %}" class="Check-Details">
+                                View Questions
+                            </a>
+                            
+                        </div>
+
+                        <div class="courses-check-details-buttom">
+                            <a  class="Check-Details">
+                               Upload
+                            </a>
+                            
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </main>
+</body>
+{% endblock content %}

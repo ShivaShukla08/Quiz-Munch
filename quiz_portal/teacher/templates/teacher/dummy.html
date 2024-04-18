@@ -1,0 +1,61 @@
+{% extends 'teacher/main.html' %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Form</title>
+</head>
+<body>
+    <form action="{% url 'create_quiz' %}" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div>
+            <label for="course">Course and Batch:</label>
+            <select name="course" id="course">
+                {% for detail in details %}
+                <option value="{{ detail.course_id }}-{{ detail.batch }}">{{ detail.course_name }} - {{ detail.batch }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <br>
+        <div>
+            <label for="start-time">Start Time:</label>
+            <input type="time" id="start-time" name="start-time">
+        </div>
+        <br>
+        <div>
+            <label for="end-time">End Time:</label>
+            <input type="time" id="end-time" name="end-time">
+        </div>
+
+        <br>
+        <div>
+            <label for="start-date">Start Date:</label>
+            <input type="date" id="start-date" name="start-date">
+        </div>
+
+        <br>
+        <div>
+            <label for="end-date">End Date:</label>
+            <input type="date" id="end-date" name="end-date">
+        </div>
+
+        <br>
+        <div>
+            <label for="quiz-file">Quiz File:</label>
+            <input type="file" id="quiz-file" name="quiz-file">
+        </div>
+
+        <br>
+        <div>
+            <input type="submit" value="Submit">
+        </div>
+
+        <br>
+    </form>
+</body>
+</html>
+
+{% endblock content %}

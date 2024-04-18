@@ -7,6 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz MUNCH</title>
     <link rel="stylesheet" href="{% static 'student/styles/Homestyle.css' %}" />
+    <link rel="stylesheet" href="{% static 'student/styles/profile.css' %}" />
+    <link rel="stylesheet" href="{% static 'student/styles/style.css' %}" />
+    <link rel="stylesheet" href="{% static 'teacherstyle/images' %}" />
     <style>
         /* Style for the popup */
         .popup {
@@ -29,10 +32,6 @@
             text-decoration: none;
             color: black;
         }
-
-       
-
-       
     </style>
 </head>
 
@@ -52,7 +51,7 @@
                     <a href="{% url 'create_quiz' %}">Create_Quiz</a>
                 </span>
                 <span class="Home">
-                    Profile
+                    <a href="{% url 'teacherprofile' %}">Profile</a>
                 </span>
                 <span class="Home">
                     Feedback
@@ -65,17 +64,17 @@
                     Notifications
                 </span>
                 <div class="header-profile-container" id="logout-link">
-                    <a href="{% url 'logoutuser' %}" style="color: rgb(189, 50, 136)">Logout </style></a>
+                    <a href="{% url 'logoutuser' %}">Logout</a>
                 </div>
             </div>
         </div>
     </header>
 
     <!-- Popup for profile functionality -->
-    <!-- <div class="popup" id="popup">
+    <div class="popup" id="popup">
         <a href="#">Profile</a>
         <a href="{% url 'logoutuser' %}">Logout</a>
-    </div> -->
+    </div>
 
 
 </body>

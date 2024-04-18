@@ -1,8 +1,6 @@
 from django.db import models
 import uuid
 
-from django.db import models
-
 class TeacherProfile(models.Model):
     id = models.CharField(max_length=36, primary_key=True, unique=True)
     name = models.CharField(max_length=100)
@@ -31,6 +29,44 @@ class TeacherCourse(models.Model):
 
     def __str__(self):
         return f"{self.course_name} - {self.teacher.name}"
+
+
+
+class Quiz_details(models.Model):
+    teacher_id = models.CharField(max_length=100)
+    quiz_name = models.CharField(max_length=255)
+    uuid = models.UUIDField(unique=True)
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    start_date = models.DateField()
+    end_date = models.DateField()
+    course_id = models.CharField(max_length=100)
+    batch = models.CharField(max_length=100)
+    stream = models.CharField(max_length=100)
+    backtracking = models.BooleanField(default=False)
+    upload = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.quiz_name
+
+
+class Quiz_Question_detail(models.Model):
+    uuid = models.UUIDField(unique=False)
+    question_number = models.PositiveIntegerField()
+    question_description = models.TextField()
+    question_type = models.CharField(max_length=255)
+    correct_answer = models.CharField(max_length=255)
+    option1 = models.CharField(max_length=255)
+    option2 = models.CharField(max_length=255)
+    option3 = models.CharField(max_length=255, blank=True, null=True)
+    option4 = models.CharField(max_length=255, blank=True, null=True)
+
+    def __str__(self):
+        return f"Question {self.question_number}: {self.question_description}"
+
+
+
+#............................... Below code is of no use................................
 
 class Quiz(models.Model):
     id = models.UUIDField(default=uuid.uuid4, unique=True, primary_key=True, editable=False)

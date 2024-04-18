@@ -7,116 +7,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz MUNCH</title>
     <link rel="stylesheet" href="{% static 'student/styles/Homestyle.css' %}" />
-    <link rel="stylesheet" href="{% static 'student/styles/Profilestyle.css' %}" />
 </head>
 
 <body>
-    <header class="header">
-        <div class="headerConatiner">
-            <div class="logo">
-                <span class="logo_text">
-                    QUIZ MUNCH
-                </span>
+<header class="header">
+    <div class="headerConatiner">
+        <div class="logo">
+            <span class="logo_text">
+                QUIZ MUNCH
+            </span>
+        </div>
+        <div class="headerhome">
+            <span class="Home">
+                Home
+                <div class="Rectangle"></div>
+            </span>
+            <span class="Home">
+                Search
+            </span>
+            <span class="Home">
+                Help
+            </span>
+            <span class="Home">
+                Feedback
+            </span>
+        </div>
+        <div class="headerNotification">
+            <div class="Bell">
             </div>
-            <style>
-                .Home {
-                    width: 51px;
-                    height: 25px;
-                    flex-grow: 0;
-                    font-family: Inter;
-                    font-size: 18px;
-                    font-weight: 500;
-                    font-stretch: normal;
-                    font-style: normal;
-                    line-height: 1.39;
-                    letter-spacing: normal;
-                    text-align: left;
-                    color: #4a5568;
-                }
-
-                .Home a {
-                    color: #4a5568;
-                    text-decoration: none;
-                }
-
-                .Home a:hover {
-                    color: #445a7f;
-
-
-                }
-
-                .notificationtext a {
-                    color: #4a5568;
-                    text-decoration: none;
-                }
-
-                a {
-                    color: #ffffff;
-                    text-decoration: none;
-                }
-
-                .a:hover {
-                    box-shadow: 0 8px 16px 0 rgba(255, 255, 255, 0.2);
-                }
-
-                .RB a {
-                    color: #4a5568;
-                    text-decoration: none;
-                }
-
-                .RB a:hover {
-                    color: #445a7f;
-                }
-
-                .ribbon {
-                    width: 22px;
-                    height: 10px;
-                    font-size: 10px;
-                    padding: 4px;
-                    position: absolute;
-                    text-align: center;
-                    border-radius: 10px;
-                    transform: rotate(15deg);
-                    background-color: #ff9800;
-                    color: white;
-                    margin-left: 85px;
-                    margin-top: -35px;
-                }
-            </style>
-            <div class="headerhome">
-                <span class="Home">
-                    <a href="{% url 'home' %}">Home</a>
-                    <div class="Rectangle"></div>
+            <span class="notificationtext">
+                Notifications
+            </span>
+            <div class="header-profile-container">
+                <span class="RB">
+                    AKS
                 </span>
-                <span class="Home">
-                    <a href="www.google.com">Search</a>
-                </span>
-                <span class="Home">
-                    <a href="www.google.com">Help</a>
-                </span>
-                <span class="Home">
-                    <a href="www.google.com">Feedback</a>
-                </span>
-                <span class="Home">
-                    <a href="{% url 'userlogout' %}">Logout</a>
-                </span>
-            </div>
-            <div class="headerNotification">
-                <div class="Bell">
-                </div>
-                <span class="notificationtext">
-                    <a href="www.google.com">Notifications
-                        <span class="ribbon">NEW</span>
-                    </a>
-                </span>
-                <div class="header-profile-container">
-                    <span class="RB">
-                        <a href="{% url 'profile' %}">AKS</a>
-                    </span>
-                    <div class="header-arrow">
-                        <p><i class="arrow down"></i></p>
-                    </div>
+                <div class="header-arrow">
+                    <p><i class="arrow down"></i></p>
                 </div>
             </div>
         </div>
-    </header>
+    </div>
+</header>
+
+</body>
+
+</html>
