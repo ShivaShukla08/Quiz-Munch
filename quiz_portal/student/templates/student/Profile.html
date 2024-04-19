@@ -1,1 +1,55 @@
-Hi Adarsh
+{% load static %}
+{% include 'student/header.html' %}
+{% block content %}
+<main>
+    {% for profile in profile_details %}
+    <div class="Container-profile">
+    <div class="profile-container">
+        <div class="profile-header">
+        </div>
+        <div class="profile-info">
+            <div class="profile-picture">
+                <img src="{% static 'student/images/'%}{{profile.user_id}}.png" alt="Profile Picture">
+            </div>
+            <div class="profile-details">
+                <div class="name_profile">
+                    <strong>{{profile.user_id}} ({{profile.name}})</strong>
+                    <div class="phone">
+                        <img src="https://myupes-beta.upes.ac.in/connectportal/assets/img/icons/phone.png">  
+                    </div> 
+                    <span class="phoneno1">
+                        {{profile.contact_no}}
+                    </span>
+                    <div class="phone">
+                        <img src="https://myupes-beta.upes.ac.in/connectportal/assets/img/icons/mail.png">  
+                    </div> 
+                    <span class="phoneno1">
+                        {{profile.personal_mail}}
+                    </span>
+                </div> 
+            </div>
+        </div>
+        <div class="ProgramDetails">
+            <Strong><b>Program Details</b></Strong>
+            <p><b>Program Name:</b> {{profile.stream}} In {{profile.major}}
+            </p>
+            <p><b>Major:</b> {{profile.major}}</p>
+            <p><b>Term:</b> Semester {{profile.semester}}</p><br>
+
+            <Strong><b>Student Information</b></Strong>
+            <p><b>Roll No:</b> {{profile.roll_no}}</p>
+            <p><b>Stream:</b> {{profile.stream}}</p>
+            <p><b>Semester:</b> {{profile.semester}}</p>
+            <p><b>Batch:</b> {{profile.batch}}</p>
+            <p><b>Personal mail:</b> {{profile.personal_mail}}</p>
+            <p><b>Contact no:</b> {{profile.contact_no}}</p>
+            <p><b>Parents contact no:</b> {{profile.parents_contact_no}}</p>
+            <p><b>Parents email:</b> {{profile.parents_email}}</p>
+            <p><b>Gender:</b> {{profile.gender}}</p>
+        </div>  
+    </div>
+   </div>
+   {% endfor %}
+</main>
+{% include 'student/footer.html' %}
+{% endblock content %}
