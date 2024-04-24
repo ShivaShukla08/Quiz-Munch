@@ -34,6 +34,71 @@
             text-decoration: none;
             color: black;
         }
+
+        .Home {
+                    width: 51px;
+                    height: 25px;
+                    flex-grow: 0;
+                    font-family: Inter;
+                    font-size: 19px;
+                    font-weight: 500;
+                    font-stretch: normal;
+                    font-style: normal;
+                    line-height: 1.39;
+                    letter-spacing: normal;
+                    text-align: left;
+                    color: #4a5568;
+                }
+
+        
+               .Home a {
+                    color: #4a5568;
+                    text-decoration: none;
+                }
+
+                .Home a:hover {
+                    color: #0b121e;
+
+
+                }
+
+                .notificationtext a {
+                    color: #4a5568;
+                    text-decoration: none;
+                }
+
+                a {
+                    color: #ffffff;
+                    text-decoration: none;
+                }
+
+                .a:hover {
+                    box-shadow: 0 8px 16px 0 rgba(255, 255, 255, 0.2);
+                }
+
+                .RB a {
+                    color: #4a5568;
+                    text-decoration: none;
+                }
+
+                .RB a:hover {
+                    color: #445a7f;
+                }
+
+        .ribbon {
+                    width: 22px;
+                    height: 10px;
+                    font-size: 10px;
+                    padding: 4px;
+                    position: absolute;
+                    text-align: center;
+                    border-radius: 10px;
+                    transform: rotate(15deg);
+                    background-color: #ff9800;
+                    color: white;
+                    margin-left: 85px;
+                    margin-top: -35px;
+                }
     </style>
 </head>
 
@@ -67,19 +132,26 @@
                 </div>
                 <span class="notificationtext">
                     Notifications
+                    <span class="ribbon">NEW</span>
+                    </a>
                 </span>
-                <div class="header-profile-container" id="logout-link">
-                    <a href="{% url 'logoutuser' %}">Logout</a>
+                <div class="header-profile-container">
+                    <span class="RB ">
+                        <a href="{% url 'teacherprofile' %}">VM</a>
+                    </span>
+                    <div class="header-arrow">
+                        <p><i class="arrow down"></i></p>
+                    </div>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- Popup for profile functionality -->
+    <!-- Popup for profile functionality
     <div class="popup" id="popup">
         <a href="#">Profile</a>
-        <a href="{% url 'logoutuser' %}">Logout</a>
-    </div>
+        <a href="{% url 'logoutuser' %}">Logout</a> 
+    </div> -->
 
 
 </body>

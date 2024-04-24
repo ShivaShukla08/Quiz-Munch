@@ -3,6 +3,7 @@
 {% block content %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -10,45 +11,71 @@
     <title>Student Results</title>
     <style>
         table {
-            width: 100%;
+            width: 1250px;
             border-collapse: collapse;
+            height: 15px;
         }
 
-        th, td {
+        th,
+        td {
             border: 1px solid #dddddd;
-            text-align: left;
-            padding: 8px;
+            text-align: center;
+            padding: 2px;
+            font-family: Inter;
+            font-size: 20px;
+
+            font-weight: 500;
+            font-stretch: normal;
+            font-style: normal;
+            line-height: 2.75;
+            letter-spacing: normal;
         }
 
         th {
             background-color: #f2f2f2;
+
         }
     </style>
 </head>
+
 <body>
-    <h1>Student Results</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>Student Name</th>
-                <th>SAP ID</th>
-                <th>Score</th>
-                <th>Incorrect Question</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for student_name, data in student_scores.items %}
-            <tr>
-                <td>{{ student_name }}</td>
-                <td>{{ data.sap_id }}</td>
-                <td>{{ data.score }}</td>
-                <td>{{ data.incorrect }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    <br>
+    <br><br>
+    <div class="containerCourses">
+        <div class="containerHeader">
+            <h1 class="Quiz-Progress">
+                Score Card
+            </h1>
+        </div>
+
+
+        <div class="layout">
+
+            <table>
+                <thead>
+                    <tr>
+                        <th><b>Student Name</b></th>
+                        <th><b>SAP ID</b></th>
+                        <th><b>Score</b></th>
+                        <th><b>Incorrect Question</b></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student_name, data in student_scores.items %}
+                    <tr>
+                        <td>{{ student_name }}</td>
+                        <td>{{ data.sap_id }}</td>
+                        <td>{{ data.score }}</td>
+                        <td>{{ data.incorrect }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <br>
+        </div>
+    </div>
+
 </body>
+
 </html>
 
 
