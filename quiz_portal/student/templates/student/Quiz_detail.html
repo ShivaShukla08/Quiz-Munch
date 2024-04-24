@@ -1,0 +1,58 @@
+{% load static %}
+{% include 'student/header.html' %}
+{% block content %}
+<main>
+    <br><br>
+    <div class="containerCourses" style="height: {{ actualheightfcourses }}px;">
+        <div class="containerHeader">
+            <h1 class="Quiz-Progress">
+                My Quizzes 
+            </h1>
+        </div>
+        <div class="layout">
+            {% for course in details %}
+            <div class="Courses-All-display-container">
+                <div class="imagecoursebox">
+                <img class="subjectImage" src="{% static 'student/images/'%}{{ course.course_id }}.png">
+                </div>
+                <div class="courses-year">
+                    <span class="courses-name">
+                        Quiz Name: {{ course.quiz_name }}
+                    </span>
+                    <span class="Instructor-name">
+                        <b>Start</b> - {{ course.start_time }} - {{ course.start_date }}
+                    </span>
+                    <span class="Instructor-name">
+                        <b>End</b> - {{ course.end_time }} - {{ course.end_date }}
+                    </span>
+                </div>
+                <div class="Total-Quizes-text-container">
+                    <span class="Total-Quizes">
+                        Batch: 
+                        <span class="text-style-1"> {{course.batch}} </span>
+                    </span>
+                    <span class="courses-Completed-text">
+                        Backtracking: 
+                        <span class="text-style-1">:</span>
+                        {% if course.backtracking %}
+                            <span class="text-style-2">Yes</span>
+                        {% else %}
+                            <span class="text-style-2">No</span>
+                        {% endif %}    
+                    </span>
+                    <div class="courses-check-details-buttom">
+                        <span class="Check-Details">
+                            <a href="{% url 'quizdisplay' course.uuid %}" class="Check-Details" id="upload_quiz">
+                                Start Quiz
+                             </a>
+                        </span>
+                        
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</main>
+{% include 'student/footer.html' %}
+{% endblock content %}

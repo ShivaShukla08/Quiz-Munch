@@ -59,10 +59,15 @@
                         </div>
 
                         <div class="courses-check-details-buttom">
-                            <a  class="Check-Details">
-                               Upload
+                            {% if course.upload %}
+                            <a class="Check-Details uploaded">
+                               Quiz Uploaded
                             </a>
-                            
+                            {% else %}
+                            <a href="{% url 'upload_quiz' course.uuid %}" class="Check-Details" id="upload_quiz">
+                               Upload Quiz
+                            </a>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -70,5 +75,7 @@
             </div>
         </div>
     </main>
+
+
 </body>
 {% endblock content %}

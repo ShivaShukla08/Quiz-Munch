@@ -65,7 +65,6 @@ class Quiz_Question_detail(models.Model):
         return f"Question {self.question_number}: {self.question_description}"
 
 
-
 #............................... Below code is of no use................................
 
 class Quiz(models.Model):

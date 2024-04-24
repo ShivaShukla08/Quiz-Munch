@@ -1,0 +1,59 @@
+{% load static %}
+{% include 'student/header.html' %}
+
+{% block content %}
+<main>
+    <button class="fullscreen-btn" onclick="openFullscreen();">Open Fullscreen</button>
+    <div class="quiz-container">
+        <h1>Multiple Choice Quiz</h1>
+        <hr>
+        <form id="quiz-form" action="{% url 'submit_quiz' quuid %}" method="post">
+          {% csrf_token %}
+            <!-- Loop through the questions -->
+            {% for question in question %}
+            <div class="question">
+                <p>{{ question.question_number }}. {{ question.question_description }}</p>
+                <div class="answers">
+                    <label>
+                        <input type="radio" name="q{{ question.question_number }}" value="{{ question.option1 }}">
+                        {{ question.option1 }}
+                    </label>
+                    <label>
+                        <input type="radio" name="q{{ question.question_number }}" value="{{ question.option2 }}">
+                        {{ question.option2 }}
+                    </label>
+                    {% if question.option3 %}
+                    <label>
+                        <input type="radio" name="q{{ question.question_number }}" value="{{ question.option3 }}">
+                        {{ question.option3 }}
+                    </label>
+                    {% endif %}
+                    {% if question.option4 %}
+                    <label>
+                        <input type="radio" name="q{{ question.question_number }}" value="{{ question.option4 }}">
+                        {{ question.option4 }}
+                    </label>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+            <!-- Add a submit button within the form -->
+            <button type="submit" class="submit-btn">Submit Quiz</button>
+        </form>
+    </div>
+</main>
+<script>
+    // JavaScript functions for fullscreen
+    var elem = document.documentElement;
+    function openFullscreen() {
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen();
+        } else if (elem.webkitRequestFullscreen) { /* Safari */
+            elem.webkitRequestFullscreen();
+        } else if (elem.msRequestFullscreen) { /* IE11 */
+            elem.msRequestFullscreen();
+        }
+    }
+</script>
+{% include 'student/footer.html' %}
+{% endblock content %}

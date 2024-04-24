@@ -11,6 +11,8 @@ from .forms import QuizForm
 import uuid
 import pytz  # If you need to work with time zones
 from datetime import datetime
+from django.contrib import messages
+
 
 # Create your views here.
 @login_required
@@ -51,12 +53,37 @@ def home(request):
     details = TeacherCourse.objects.filter(tid=user_id)
     return render(request, 'teacher/home.html', {'details': details})
 
+from django.contrib import messages
 
-def course_detail(request,course_id):
+def course_detail(request, course_id):
     tid = request.user.username
     details = Quiz_details.objects.filter(course_id=course_id, teacher_id=tid)
-    print(details)
+    
+    if request.method == 'POST':
+        # Check if the quiz has been uploaded
+        if 'upload_quiz' in request.POST:
+            quiz_id = request.POST.get('quiz_id')
+            quiz = Quiz_details.objects.get(uuid=quiz_id)
+            if not quiz.upload:
+                # Perform the upload action
+                quiz.upload = True
+                quiz.save()
+                messages.success(request, 'Quiz uploaded successfully!')
+            else:
+                messages.warning(request, 'Quiz has already been uploaded.')
+
     return render(request, 'teacher/course_detail.html', {'details': details})
+
+def upload_quiz(request, course_uuid):
+    try:
+        quiz = Quiz_details.objects.get(uuid=course_uuid)
+        quiz.upload = True
+        quiz.save()
+        messages.success(request, 'Quiz uploaded successfully.')
+    except Quiz_details.DoesNotExist:
+        messages.error(request, 'Quiz not found.')
+    return redirect('course_detail', course_id=quiz.course_id)
+
 
 @login_required
 def create_quiz(request):

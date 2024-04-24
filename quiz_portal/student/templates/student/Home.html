@@ -166,7 +166,7 @@
                         <span class="courses-Completed-text">
                             Completed
                             <span class="text-style-1">:</span>
-                            <span class="text-style-2">1/3</span>
+                            <span class="text-style-2">0/{{course.total_quiz}}</span>
                             <span class="text-style-3"></span>
                             <div class="Courses-complete-bar-final">   
                                 <div class="Courses-complete-bar-1">                   
@@ -177,7 +177,9 @@
                         </span>
                         <div class="courses-check-details-buttom">
                             <span class="Check-Details">
-                                <a href="www.google.com">Check Details</a>    
+                                <a href="{% url 'studentCourseDetail' course.course_id %}" class="Check-Details">
+                                    Check Details
+                                </a>
                             </span>
                         </div>
                     </div>

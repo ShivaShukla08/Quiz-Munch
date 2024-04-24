@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
 
+#.........................................Not use................................................#
 class StudentProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=45)
@@ -24,6 +25,9 @@ class StudentProfile(models.Model):
 
     def __str__(self):
         return self.name
+        
+# ...................................Below present code in our use.................................#
+
 
 class StudentsProfile(models.Model):
     user_id = models.CharField(max_length=25, unique=True)
@@ -49,10 +53,26 @@ class StudentsProfile(models.Model):
     def __str__(self):
         return self.name
 
+class CoreStreams(models.Model):
+    course_id = models.CharField(max_length=100)
+    course_name = models.CharField(max_length=50)
+    semester = models.IntegerField()
+    stream = models.CharField(max_length=50)
 
+
+class response_table(models.Model):
+    uuid = models.UUIDField(unique=False)
+    sap_id = models.CharField(max_length=25, unique=False)
+    total_correct = models.IntegerField()
+    total_incorrect = models.IntegerField()
+
+    def __str__(self):  
+        return self.sap_id
+
+# .≥≥≥≥≥≥≥≥≥≥≥≥≥≥Below code is of no use≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥.
 class CoreStream(models.Model):
     course_id = models.IntegerField(primary_key=True)
     course_name = models.CharField(max_length=50)
     semester = models.IntegerField()
     stream = models.CharField(max_length=50)
-
+#≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥.
