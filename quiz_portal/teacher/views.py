@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.shortcuts import render,redirect
 from django.contrib.auth import login,authenticate,logout
-import json
+import json, math
 from django.http import HttpResponse
 from .models import TeacherProfile,TeacherCourse,Quiz,QuizQuestion,Quiz_details,Quiz_Question_detail
 from django.views.decorators.csrf import csrf_exempt
@@ -12,6 +12,7 @@ import uuid
 import pytz  # If you need to work with time zones
 from datetime import datetime
 from django.contrib import messages
+from student.models import response_table, StudentsProfile
 
 
 # Create your views here.
@@ -34,7 +35,6 @@ def teacher_login(request):
         if user is not None:
             id = username
             login(request, user)
-            # print(2222)
             return redirect('teacher_home')
         else:
             print('Username or password is incorrect')
@@ -50,8 +50,23 @@ def logoutuser(request):
 @login_required
 def home(request):
     user_id = request.user.username
-    details = TeacherCourse.objects.filter(tid=user_id)
-    return render(request, 'teacher/home.html', {'details': details})
+    details = TeacherCourse.objects.filter(tid=user_id).values()
+    
+    teachername = TeacherProfile.objects.filter(id=user_id).values('name').first()
+    teacher_name = teachername['name']
+
+    # set total no of quizzes in particular course
+    for course in details:
+        Quiz = Quiz_details.objects.filter(teacher_id = course['tid'], course_id = course['course_id'], batch= course['batch']).values()
+        course['total_quiz'] = Quiz.count()
+
+    # set myCouses hight in run time
+    size =  details.count()
+    actualheightfcourses = 720
+    if(size > 3):   
+     actualheightfcourses += (510 * (math.ceil(size/3)-1))
+     
+    return render(request, 'teacher/home.html', {'details': details, 'actualheightfcourses':actualheightfcourses, 'teacher_name':teacher_name})
 
 from django.contrib import messages
 
@@ -139,7 +154,7 @@ def create_quiz(request):
         quiz_file = request.FILES.get('quiz-file')
         x = quiz_file.read()
         x = x.decode('utf-8')
-
+        # print(x)
         j = 0
         qnum = 1
         while j < len(x):
@@ -183,15 +198,19 @@ def create_quiz(request):
                     op4 +=z
                     z = x[j]
                     j += 1
-                print("Details")
-                print(question, description, op1, op2, op3, op4)
+                
+                j = j + 16
+                correctans = x[j]
+                # print("Details")
+                # print(question, description, op1, op2, op3, op4)
                 q1 = Quiz_Question_detail(uuid = quiz_uuid,question_number=qnum, question_type="MCQ",
-                correct_answer = "A",
+                correct_answer = correctans,
                 question_description=description,
                 option1=op1,
                 option2=op2,
                 option3=op3,
                 option4=op4)
+                print(q1)
                 q1.save()
                 qnum +=1
             j += 1
@@ -200,7 +219,6 @@ def create_quiz(request):
     user_id = request.user.username
     details = TeacherCourse.objects.filter(tid=user_id)
     return render(request, 'teacher/create_quiz.html', {'details': details})
-
 
 def quizquestions(request,quiz_uuid):
     questions = Quiz_Question_detail.objects.filter(uuid=quiz_uuid)
@@ -212,3 +230,20 @@ def teacherprofile(request):
     user_id = request.user.username
     profile_details = TeacherProfile.objects.filter(id=user_id).values()
     return render(request, 'teacher/profile.html', {"profile_details": profile_details})
+
+@login_required
+def studentresults(request, quiz_uuid):
+    responses = response_table.objects.filter(uuid=quiz_uuid)
+    print(responses)
+    student_scores = {}
+
+    for response in responses:
+        sap_id = response.sap_id
+        student_profile = StudentsProfile.objects.filter(user_id=sap_id).first()
+        score = response.total_correct
+        incorrect = response.total_incorrect
+        if student_profile:
+            student_scores[student_profile.name] = {'sap_id': sap_id, 'score': score, 'incorrect':incorrect}
+    
+    print(student_scores)
+    return render(request, 'teacher/student_results.html', {'student_scores': student_scores})

@@ -122,15 +122,7 @@ def submit_quiz(request,quiz_uuid):
             print(question.question_number)
             print(selected_option)
             print(" ")
-            ans = '0'
-            if selected_option[7]=='1':
-                ans = 'A'
-            elif selected_option[7]=='2':
-                ans = 'B'
-            elif selected_option[7]=='3':
-                ans = 'C'
-            elif selected_option[7]=='4':
-                ans = 'D'
+            ans = selected_option[7]
             
             if ans == question.correct_answer:
                 total_correct += 1
@@ -142,4 +134,4 @@ def submit_quiz(request,quiz_uuid):
         return HttpResponse("Total correct answers: {}".format(total_correct))
     else:
         print(total_correct)
-        return HttpResponse("This view only accepts POST requests.")
+        return HttpResponse("This view only accepts POST requests.")

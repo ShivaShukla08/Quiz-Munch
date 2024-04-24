@@ -5,9 +5,9 @@
 <body>
     <main>
         <!----------- Quiz Progress ------->
-        <br>
+        <br><br>
         <!---------- my courses ---------------->
-        <div class="containerCourses">  
+        <div class="containerCourses" style="height: {{ actualheightfcourses }}px;">  
             <div class="containerHeader">
                 <h1 class="Quiz-Progress">
                     Dashboard
@@ -38,18 +38,27 @@
                         </span>
                         <!-- Assuming you have an Instructor field in your TeacherCourses model -->
                         <span class="Instructor-name">
-                            Instructor - {{ course.teacher.name }}
+                            Instructor:  {{ teacher_name }}
+                        </span>
+                        <span class="Instructor-name">
+                            <b>Stream: </b>
+                            <span class="Total-Quizes">
+                                Computer Science
+                            </span>
                         </span>
                     </div>
                     <div class="Total-Quizes-text-container">
                         <span class="Total-Quizes">
                             Batch: {{ course.batch }}
                         </span>
+                        <span class="Total-Quizes">
+                            Honor: {{ course.honor_or_non_honor }}
+                        </span>
                         <!-- Assuming you have a field for completed quizzes in your TeacherCourses model -->
                         <span class="courses-Completed-text">
-                            Completed
+                            Total Quizes
                             <span class="text-style-1">:</span>
-                            <span class="text-style-2">{{ course.completed_quizzes }}/3</span>
+                            <span class="text-style-2">{{ course.total_quiz }}</span>
                             <span class="text-style-3"></span>
                             <div class="Courses-complete-bar-final">
                                 <div class="Courses-complete-bar-1">
