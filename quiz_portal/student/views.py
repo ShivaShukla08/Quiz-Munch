@@ -6,6 +6,7 @@ from django.http import HttpResponse
 from .models import StudentsProfile, CoreStreams, response_table
 from . import views                                                   
 import math
+import datetime
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -83,10 +84,27 @@ def profile(request):
 
 @login_required
 def quizdisplay(request, quiz_uuid):
-    print(quiz_uuid)
-    question = Quiz_Question_detail.objects.filter(uuid=quiz_uuid)
-    return render(request, 'student/Quiz_display.html', {'question': question,'quuid':quiz_uuid})
+
+    currentTime = datetime.datetime.now().time()
+    currentDate = datetime.date.today()
+
+    quizdeatils = Quiz_details.objects.filter(uuid=quiz_uuid).first()
+    starttime = quizdeatils.start_time
+    endtime = quizdeatils.end_time
+    startdate = quizdeatils.start_date
+    enddate = quizdeatils.end_date
+    user_id = request.user.username
+    quizResponseDeatils = response_table.objects.filter(uuid=quiz_uuid, sap_id=user_id).values()
     
+    if starttime <= currentTime <= endtime and startdate <= currentDate <= enddate:
+        if quizResponseDeatils.count() <= 0:
+            question = Quiz_Question_detail.objects.filter(uuid=quiz_uuid)
+            return render(request, 'student/Quiz_display.html', {'question': question,'quuid':quiz_uuid})
+        else:
+            return HttpResponse("you are already attempted this quiz.")
+    else:
+        return HttpResponse("you are not attempted quiz this time frame.")
+
 
 @login_required
 def studentCourseDetail(request, course_id):
@@ -106,7 +124,7 @@ def studentCourseDetail(request, course_id):
 
     return render(request, 'student/Quiz_detail.html', {'details': details, "actualheightfcourses": actualheightfcourses})
 
-
+ 
 @login_required
 def submit_quiz(request,quiz_uuid):
     user_id = request.user.username    
@@ -134,4 +152,4 @@ def submit_quiz(request,quiz_uuid):
         return HttpResponse("Total correct answers: {}".format(total_correct))
     else:
         print(total_correct)
-        return HttpResponse("This view only accepts POST requests.")
+        return HttpResponse("This view only accepts POST requests.")
