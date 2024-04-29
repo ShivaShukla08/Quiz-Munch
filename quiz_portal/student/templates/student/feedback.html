@@ -1,0 +1,217 @@
+{% load static %}
+{% include 'student/header.html' %}
+{% block content %}
+
+<body>
+  <style>
+    .container {
+      width: 1000px;
+      padding: 30px;
+      background-color: #fff;
+      flex-grow: 0;
+      font-family: Inter;
+      font-size: 18px;
+      font-weight: 500;
+      font-stretch: normal;
+      font-style: normal;
+      line-height: 1.39;
+      letter-spacing: normal;
+      text-align: left;
+
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    form {
+      margin-top: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      margin-left: 5%
+    }
+
+    input[type="text"],
+    input[type="email"],
+    textarea {
+      width: 100%;
+      padding: 15px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      flex-grow: 0;
+      font-family: Inter;
+      font-size: 18px;
+      font-weight: 500;
+      font-stretch: normal;
+      font-style: normal;
+      line-height: 1.39;
+      letter-spacing: normal;
+      text-align: left;
+      margin-left: 5%
+
+    }
+
+    select{
+      width: 103%;
+      padding: 15px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      flex-grow: 0;
+      font-family: Inter;
+      font-size: 18px;
+      font-weight: 500;
+      font-stretch: normal;
+      font-style: normal;
+      line-height: 1.39;
+      letter-spacing: normal;
+      text-align: left;
+      margin-left: 5%
+
+    }
+
+    button {
+      width: 100px;
+      padding: 10px;
+      background-color: #3317c1;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      flex-grow: 0;
+      font-family: Inter;
+      font-size: 18px;
+      font-weight: 500;
+      font-stretch: normal;
+      font-style: normal;
+      line-height: 1.39;
+      letter-spacing: normal;
+      margin-left: 50%;
+      
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    #message {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    input[type="file"] {
+        width: 103%;
+        font-family: Inter;
+        font-size: 16px;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        background-color: #fff;
+        color: #333;
+        font-size: 16px;
+        outline: none;
+        margin-left: 5%
+    }
+
+    input[type="file"]:hover,
+    input[type="file"]:focus {
+        border-color: #1d20c1;
+    }
+
+    input[type="file"]::-webkit-file-upload-button {
+        background-color: #292b8c;
+        color: white;
+        padding: 10px 15px;
+        font-family: Inter;
+        font-size: 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        
+    }
+
+    input[type="file"]::-webkit-file-upload-button:hover {
+        background-color: #292b8c;
+    }
+
+    input[type="file"]::-webkit-file-upload-button:focus {
+        outline: none;
+    }
+  </style>
+
+  <br><br>
+  <div class="containerCourses">
+    <div class="containerHeader">
+      <h1 class="Quiz-Progress">
+        Quiz Portal Feedback
+      </h1>
+    </div>
+    <div class="layout">
+      <div class="container">
+
+        <form id="feedbackForm" action="{% url 'submit_feedback' %}" method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          <label for="name">Name:</label>
+          <input type="text" id="name" name="name" required>
+
+          <label for="email">Email:</label>
+          <input type="email" id="email" name="email" required>
+
+          <label for="rating">Rating:</label>
+          <select id="rating" name="rating" required>
+            <option value="">Select</option>
+            <option value="excellent">Excellent</option>
+            <option value="good">Good</option>
+            <option value="average">Average</option>
+            <option value="poor">Poor</option>
+          </select>
+
+          <label for="feedback">Feedback:</label>
+          <textarea id="feedback" name="feedback" required></textarea>
+           
+          <label for="feedback">Attached the Screenshot:</label>
+          <input type="file" id="quiz-file" name="quiz-file">
+          <br><br>
+          <button type="submit">Submit</button>
+        </form>
+        <div id="message"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('feedbackForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const formData = new FormData(this);
+        const feedbackData = {};
+        formData.forEach((value, key) => {
+            feedbackData[key] = value;
+        });
+
+        fetch("{% url 'submit_feedback' %}", {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("Feedback submitted successfully!");
+                document.getElementById('feedbackForm').reset();
+            } else {
+                alert("Feedback submission failed. Please try again later.");
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
+</script>
+</body>
+{% include 'student/footer.html' %}
+{% endblock content %}

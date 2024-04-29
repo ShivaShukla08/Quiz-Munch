@@ -54,6 +54,20 @@
             elem.msRequestFullscreen();
         }
     }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check if the URL contains 'submitted=true'
+        const urlParams = new URLSearchParams(window.location.search);
+        const submitted = urlParams.get('submitted');
+
+        if (submitted === 'true') {
+            // Show a pop-up message indicating the total correct answers
+            const totalCorrect = parseInt('{{ total_correct }}');  // Fetch the total correct answers from the context
+            alert("Quiz submitted successfully! Total correct answers: " + totalCorrect);
+        }
+    });
+
+
 </script>
 {% include 'student/footer.html' %}
 {% endblock content %}

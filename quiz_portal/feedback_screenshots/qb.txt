@@ -1,0 +1,69 @@
+Question 1: What is a DBMS (Database Management System)?
+Option 1: A software system that enables users to create, maintain, and manipulate databases.
+Option 2: A type of database used in large enterprises.
+Option 3: A programming language for querying databases.
+Option 4: An internet browser.
+Correct Option:1
+
+Question 2: Which of the following is NOT a function of a DBMS?
+Option 1: Data retrieval.
+Option 2: Data storage.
+Option 3: User interface design.
+Option 4: Data manipulation.
+Correct Option:3
+
+Question 3: What is a relational database model?
+Option 1: A database model that organizes data into tables with rows and columns, where each table represents an entity and each row represents a record.
+Option 2: A database model that organizes data into a hierarchical structure.
+Option 3: A database model that stores data in a network of nodes connected by edges.
+Option 4: A database model that uses objects and classes to represent data and relationships.
+Correct Option:1
+
+Question 4: Which of the following is NOT a popular DBMS?
+Option 1: MySQL.
+Option 2: Oracle.
+Option 3: Microsoft Word.
+Option 4: PostgreSQL.
+Correct Option:3
+
+Question 5: What is ACID in the context of database transactions?
+Option 1: A set of properties that ensure database transactions are processed reliably.
+Option 2: A data manipulation language.
+Option 3: A data storage format.
+Option 4: A database indexing technique.
+Correct Option:1
+
+Question 6: What is the primary purpose of a DBMS?
+Option 1: To provide an interface for users to interact with databases.
+Option 2: To manage and organize data efficiently.
+Option 3: To design graphical user interfaces.
+Option 4: To connect databases to the internet.
+Correct Option:2
+
+Question 7: What is normalization in the context of database design?
+Option 1: A process of reducing redundancy and dependency by organizing fields and tables of a database.
+Option 2: A process of encrypting sensitive data in a database.
+Option 3: A process of indexing database tables for faster query performance.
+Option 4: A process of backing up database files.
+Correct Option:1
+
+Question 8: Which of the following is NOT a type of DBMS?
+Option 1: Relational DBMS.
+Option 2: NoSQL DBMS.
+Option 3: Graphical user interface (GUI).
+Option 4: Object-Oriented DBMS.
+Correct Option:3
+
+Question 9: What is SQL (Structured Query Language)?
+Option 1: A language used for managing and manipulating relational databases.
+Option 2: A type of database storage.
+Option 3: A data encryption standard.
+Option 4: A database indexing technique.
+Correct Option:1
+
+Question 10: What is a database schema?
+Option 1: A logical structure that represents the organization of data in a database.
+Option 2: A hardware component of a database server.
+Option 3: A type of database backup.
+Option 4: A database security protocol.
+Correct Option:1

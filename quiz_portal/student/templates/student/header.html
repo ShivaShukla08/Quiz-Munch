@@ -43,13 +43,20 @@
 
                 .Home a:hover {
                     color: #445a7f;
-
-
+                    font-size: 19px;
+                    font-weight: bold;
                 }
 
                 .notificationtext a {
                     color: #4a5568;
                     text-decoration: none;
+                }
+
+                .notificationtext a:hover {
+                    color: #445a7f;
+                    text-decoration: none;
+                    font-size: 19px;
+                    font-weight: bold;
                 }
 
                 a {
@@ -58,6 +65,8 @@
                 }
 
                 .a:hover {
+                    font-size: 19px;
+                    font-weight: bold;
                     box-shadow: 0 8px 16px 0 rgba(255, 255, 255, 0.2);
                 }
 
@@ -67,6 +76,8 @@
                 }
 
                 .RB a:hover {
+                    font-size: 19px;
+                    font-weight: bold;
                     color: #445a7f;
                 }
 
@@ -84,6 +95,12 @@
                     margin-left: 85px;
                     margin-top: -35px;
                 }
+
+                .ribbon:hover {
+                    font-size: 11px;
+                    /* font-weight: bold;     */
+                }
+             
             </style>
             <div class="headerhome">
                 <span class="Home">
@@ -97,7 +114,7 @@
                     <a href="www.google.com">Help</a>
                 </span>
                 <span class="Home">
-                    <a href="www.google.com">Feedback</a>
+                    <a href="{% url 'feedback' %}">Feedback</a>
                 </span>
                 <span class="Home">
                     <a href="{% url 'userlogout' %}">Logout</a>
@@ -107,7 +124,7 @@
                 <div class="Bell">
                 </div>
                 <span class="notificationtext">
-                    <a href="www.google.com">Notifications
+                    <a href="{% url 'notifications' %}">Notifications
                         <span class="ribbon">NEW</span>
                     </a>
                 </span>

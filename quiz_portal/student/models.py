@@ -68,6 +68,18 @@ class response_table(models.Model):
 
     def __str__(self):  
         return self.sap_id
+    
+class Feedback(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    rating = models.CharField(max_length=50)
+    feedback = models.TextField()
+    screenshot = models.ImageField(upload_to='feedback_screenshots/', blank=True, null=True)
+    submitted_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
 
 # .≥≥≥≥≥≥≥≥≥≥≥≥≥≥Below code is of no use≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥.
 class CoreStream(models.Model):

@@ -1,0 +1,72 @@
+{% load static %}
+{% include 'student/header.html' %}
+{% block content %}
+
+<body>
+    <style>
+        table {
+            width: 1265px;
+            border-collapse: collapse;
+            height: 15px;
+        }
+
+        th,
+        td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 5px;
+            font-family: Inter;
+            font-size: 18px;
+            font-weight: 500;
+            font-stretch: normal;
+            font-style: normal;
+            line-height: 1.5;
+            letter-spacing: normal;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        p {
+            margin-right: 5px;
+            margin-left: 20px;
+        }
+    </style>
+
+    <br><br>
+    <div class="containerCourses" style="height: {{ actualheightfnotification }}px;">
+        <div class="containerHeader">
+            <h1 class="Quiz-Progress">
+                My notifications
+            </h1>
+        </div>
+
+
+        <div class="layout">
+
+            <table>
+                {% for notifications in details_list %}
+                <thead>
+                    <th>
+                        <b><p>{{notifications.quiz_name}}</p></b>
+                            <p>This is a friendly reminder that there will be a quiz on <b>"{{notifications.course_name}}"</b>.</p>
+                            <p> Quiz Name: {{notifications.quiz_name}}</p>
+                            <p> Date: {{notifications.end_date}}</p>
+                            <p> Time: {{notifications.start_time}} - {{notifications.end_time}}</p>
+                            <p> Batch: {{notifications.batch}}</p>
+                            <p> Stream: {{notifications.stream}}</p>
+                            <p>Please ensure you are prepared and ready to participate in the quiz. We recommend logging into the quiz portal at least 10 minutes before the start time to avoid any technical issues.</p>
+                            <p>Best regards,</p>
+                            <p>{{notifications.teacher_name}}</p>
+                    </th>
+                </thead>
+                {% endfor %}
+            </table>
+            <br>
+        </div>
+    </div>
+
+</body>
+{% include 'student/footer.html' %}
+{% endblock content %}

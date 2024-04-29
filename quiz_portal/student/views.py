@@ -3,9 +3,10 @@ from django.contrib.auth.models import User
 from django.shortcuts import render,redirect
 from django.contrib.auth import login, authenticate, logout
 from django.http import HttpResponse
-from .models import StudentsProfile, CoreStreams, response_table
+from .models import StudentsProfile, CoreStreams, response_table, Feedback
 from . import views                                                   
 import math
+from django.http import JsonResponse
 import datetime
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
@@ -94,8 +95,16 @@ def quizdisplay(request, quiz_uuid):
     startdate = quizdeatils.start_date
     enddate = quizdeatils.end_date
     user_id = request.user.username
-    quizResponseDeatils = response_table.objects.filter(uuid=quiz_uuid, sap_id=user_id).values()
     
+    quizResponseDeatils = response_table.objects.filter(uuid=quiz_uuid, sap_id=user_id).values()
+
+    if(startdate < currentDate < enddate):
+        if quizResponseDeatils.count() <= 0:
+            question = Quiz_Question_detail.objects.filter(uuid=quiz_uuid)
+            return render(request, 'student/Quiz_display.html', {'question': question,'quuid':quiz_uuid})
+        else:
+            return HttpResponse("you are already attempted this quiz.")
+
     if starttime <= currentTime <= endtime and startdate <= currentDate <= enddate:
         if quizResponseDeatils.count() <= 0:
             question = Quiz_Question_detail.objects.filter(uuid=quiz_uuid)
@@ -103,8 +112,16 @@ def quizdisplay(request, quiz_uuid):
         else:
             return HttpResponse("you are already attempted this quiz.")
     else:
-        return HttpResponse("you are not attempted quiz this time frame.")
-
+        if quizResponseDeatils.count() > 0:
+            return HttpResponse("you are already attempted this quiz.")
+        elif currentDate >= enddate:
+            if(currentDate == enddate and endtime < currentTime):
+                return HttpResponse("you are missed this quiz today.")
+            elif(currentDate > enddate):
+                return HttpResponse("you are missed this quiz.")
+        
+        return HttpResponse("Quizzes are not be started.")
+    
 
 @login_required
 def studentCourseDetail(request, course_id):
@@ -115,7 +132,7 @@ def studentCourseDetail(request, course_id):
     teacher_details = TeacherCourse.objects.filter(course_id = course_id, batch= batch).first()
     details = Quiz_details.objects.filter(teacher_id = teacher_details.teacher_id, course_id = course_id, batch= batch).values()
 
-    print(details)
+    # print(details)
     # set myquizes hight in run time
     size =  details.count()
     actualheightfcourses = 590
@@ -149,7 +166,72 @@ def submit_quiz(request,quiz_uuid):
         
         result = response_table(uuid=quiz_uuid,sap_id=user_id,total_correct=total_correct, total_incorrect=total_incorrect)
         result.save()
-        return HttpResponse("Total correct answers: {}".format(total_correct))
+
+        return JsonResponse({'success': True, 'total_correct': total_correct})
     else:
         print(total_correct)
-        return HttpResponse("This view only accepts POST requests.")
+        return JsonResponse({'error': 'This view only accepts POST requests'}, status=405)
+
+    
+@login_required
+def notifications(request):
+    user_id = request.user.username
+    user_details = StudentsProfile.objects.filter(user_id=user_id).first()
+    sem = user_details.semester
+    stream = user_details.stream
+    batch = user_details.batch
+ 
+    course_details = CoreStreams.objects.filter(semester=sem, stream=stream).values()
+    details_list = []
+
+    for course in course_details:
+        teacher_details = TeacherCourse.objects.filter(course_id=course['course_id'], batch=batch).first()
+
+        if teacher_details:
+            course_id = course['course_id']
+            course_name = course['course_name']
+            teacher_name = teacher_details.teacher.name
+            print(teacher_name)
+            quizzes = Quiz_details.objects.filter(teacher_id=teacher_details.teacher_id, course_id=course_id, batch=batch).values()
+            
+            for quiz in quizzes:
+                quiz['course_name'] = course_name
+                quiz['teacher_name'] = teacher_name
+                details_list.append(quiz)
+
+    size = len(details_list)
+    actualheightfnotification = 0
+    if size > 1:
+        actualheightfnotification = (529 * size)
+
+    return render(request, 'student/notifications.html', {'details_list': details_list, 'actualheightfnotification': actualheightfnotification})
+
+@login_required
+def feedback(request):
+    return render(request, 'student/feedback.html')
+
+from django.http import JsonResponse
+
+@login_required
+def submit_feedback(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        rating = request.POST.get('rating')
+        feedback = request.POST.get('feedback')
+        screenshot = request.FILES.get('quiz-file')
+
+        # Create a new Feedback object and save it to the database
+        feedback_obj = Feedback.objects.create(
+            name=name,
+            email=email,
+            rating=rating,
+            feedback=feedback,
+            screenshot=screenshot
+        )
+
+        # Return a JSON response indicating success
+        return JsonResponse({'success': True})
+    else:
+        # Handle other HTTP methods (e.g., GET) if needed
+        return JsonResponse({'error': 'Invalid request method'}, status=405)

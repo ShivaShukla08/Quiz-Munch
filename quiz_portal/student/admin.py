@@ -1,7 +1,8 @@
 from django.contrib import admin
 
-from .models import StudentProfile,CoreStreams, StudentsProfile,response_table
+from .models import StudentProfile,CoreStreams, StudentsProfile,response_table, Feedback
 
 admin.site.register(CoreStreams)
 admin.site.register(StudentsProfile)
 admin.site.register(response_table)
+admin.site.register(Feedback)
