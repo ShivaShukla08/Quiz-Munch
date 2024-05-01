@@ -35,6 +35,26 @@
             background-color: #f2f2f2;
 
         }
+
+        .excel-download-button {
+            background-color: #100f6d;
+            /* Green */
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            margin: 4px 2px;
+            cursor: pointer;
+            margin-left: 1058px;
+            border-radius: 5px;
+            text-align: center;
+            font-family: Inter;
+            font-size: 19px;
+            font-stretch: normal;
+            font-style: normal;
+        }
     </style>
 </head>
 
@@ -46,7 +66,14 @@
                 Score Card
             </h1>
         </div>
-
+        
+        <form action="{% url 'generate_excel' quizid %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="excel_data" value="{{ student_scores }}">
+            <button type="submit" class="excel-download-button">
+                Download Excel
+            </button>
+        </form>
 
         <div class="layout">
 
@@ -77,6 +104,4 @@
 </body>
 
 </html>
-
-
 {% endblock content %}

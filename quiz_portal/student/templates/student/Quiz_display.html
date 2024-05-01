@@ -6,6 +6,7 @@
     <button class="fullscreen-btn" onclick="openFullscreen();">Open Fullscreen</button>
     <div class="quiz-container">
         <h1>Multiple Choice Quiz</h1>
+        <div id="timer" style="font-size: 2em;">{{ '5:00'}}</div> <!-- Timer display -->
         <hr>
         <form id="quiz-form" action="{% url 'submit_quiz' quuid %}" method="post">
           {% csrf_token %}
@@ -38,7 +39,7 @@
             </div>
             {% endfor %}
             <!-- Add a submit button within the form -->
-            <button type="submit" class="submit-btn">Submit Quiz</button>
+            <button id="submitButton" type="submit" class="submit-btn">Submit Quiz</button>
         </form>
     </div>
 </main>
@@ -54,20 +55,38 @@
             elem.msRequestFullscreen();
         }
     }
-    
-    document.addEventListener('DOMContentLoaded', function() {
-        // Check if the URL contains 'submitted=true'
-        const urlParams = new URLSearchParams(window.location.search);
-        const submitted = urlParams.get('submitted');
+    document.addEventListener("DOMContentLoaded", function() {
+      // Set the countdown time (in seconds)
+      var countdownTime = 1 * 60; // 20 minutes
 
-        if (submitted === 'true') {
-            // Show a pop-up message indicating the total correct answers
-            const totalCorrect = parseInt('{{ total_correct }}');  // Fetch the total correct answers from the context
-            alert("Quiz submitted successfully! Total correct answers: " + totalCorrect);
+      var timerElement = document.getElementById("timer"); // Timer display element
+      var submitButton = document.getElementById("submitButton"); // Submit button element
+
+      // Function to update the timer display
+      function updateTimer() {
+        var minutes = Math.floor(countdownTime / 60);
+        var seconds = countdownTime % 60;
+        // Format the display to be MM:SS
+        var display = minutes.toString().padStart(2, '0') + ":" + seconds.toString().padStart(2, '0');
+        timerElement.textContent = display;
+
+        // Decrease the countdown time
+        countdownTime--;
+
+        if (countdownTime < 0) {
+          // Timer has reached zero, submit the form or take appropriate action
+          alert("Time is up! Submitting your quiz.");
+          submitButton.click(); // Auto-submit the form
+        } else {
+          // Call updateTimer again in one second
+          setTimeout(updateTimer, 1000); // 1 second
         }
+      }
+
+      // Start the timer
+      updateTimer();
     });
-
-
 </script>
+
 {% include 'student/footer.html' %}
 {% endblock content %}

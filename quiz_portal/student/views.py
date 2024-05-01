@@ -7,6 +7,7 @@ from .models import StudentsProfile, CoreStreams, response_table, Feedback
 from . import views                                                   
 import math
 from django.http import JsonResponse
+
 import datetime
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
@@ -15,7 +16,6 @@ from django.views.generic.detail import DetailView
 from teacher.models import TeacherCourse, TeacherProfile, Quiz_details,Quiz_Question_detail
 
 # Create your views here.
-
 def user_login(request):
     if request.method == "POST":
         username = request.POST['username']
@@ -57,7 +57,7 @@ def home(request):
     size =  course_details.count()
     actualheightfcourses = 720
     if(size > 3):   
-     actualheightfcourses += (510 * (math.ceil(size/3)-1))
+      actualheightfcourses += (510 * (math.ceil(size/3)-1))
 
     for course in course_details:
         teacher_details = TeacherCourse.objects.filter(course_id=course['course_id'], batch= batch).first()
@@ -94,8 +94,17 @@ def quizdisplay(request, quiz_uuid):
     endtime = quizdeatils.end_time
     startdate = quizdeatils.start_date
     enddate = quizdeatils.end_date
-    user_id = request.user.username
-    
+    user_id = request.user.username  
+
+    print(starttime)
+    print(startdate)
+
+    print(enddate)
+    print(endtime)
+
+    print(currentDate)
+    print(currentTime)
+
     quizResponseDeatils = response_table.objects.filter(uuid=quiz_uuid, sap_id=user_id).values()
 
     if(startdate < currentDate < enddate):
@@ -106,6 +115,7 @@ def quizdisplay(request, quiz_uuid):
             return HttpResponse("you are already attempted this quiz.")
 
     if starttime <= currentTime <= endtime and startdate <= currentDate <= enddate:
+    
         if quizResponseDeatils.count() <= 0:
             question = Quiz_Question_detail.objects.filter(uuid=quiz_uuid)
             return render(request, 'student/Quiz_display.html', {'question': question,'quuid':quiz_uuid})
@@ -154,13 +164,13 @@ def submit_quiz(request,quiz_uuid):
 
         for question in questions:
             selected_option = request.POST.get('q' + str(question.question_number))
-            print(question.question_number)
-            print(selected_option)
-            print(" ")
-            ans = selected_option[7]
-            
-            if ans == question.correct_answer:
-                total_correct += 1
+            if selected_option is not None:
+                ans = selected_option[7]
+                
+                if ans == question.correct_answer:
+                    total_correct += 1
+                else:
+                    total_incorrect +=1
             else:
                 total_incorrect +=1
         

@@ -30,8 +30,6 @@ class TeacherCourse(models.Model):
     def __str__(self):
         return f"{self.course_name} - {self.teacher.name}"
 
-
-
 class Quiz_details(models.Model):
     teacher_id = models.CharField(max_length=100)
     quiz_name = models.CharField(max_length=255)
@@ -76,8 +74,6 @@ class Quiz(models.Model):
     duration = models.IntegerField()
     def __str__(self):
         return f"Quiz {self.quiz_number}"
-
-
 
 class QuizQuestion(models.Model):
     quiz_number = models.IntegerField(default=0)

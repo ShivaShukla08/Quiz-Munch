@@ -1,4 +1,5 @@
 from django.urls import path
+from .views import generate_excel
 from . import views
 
 urlpatterns = [
@@ -10,6 +11,9 @@ urlpatterns = [
     path('quizquestions/<str:quiz_uuid>/', views.quizquestions, name='quizquestions'),
     path('teacher/', views.teacherprofile, name="teacherprofile"),
     path('upload_quiz/<uuid:course_uuid>/', views.upload_quiz, name='upload_quiz'),
-    path('studentresults/<str:quiz_uuid>/', views.studentresults, name='studentresults'),    
+    path('studentresults/<str:quiz_uuid>/', views.studentresults, name='studentresults'),   
+
+    path('generate_excel/<str:quizid>', generate_excel, name='generate_excel'),
+ 
 ]
 

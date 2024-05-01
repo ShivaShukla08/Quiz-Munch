@@ -12,7 +12,7 @@
 
         th,
         td {
-            border: 1px solid #dddddd;
+            border: 1px solid #ffffff;
             text-align: left;
             padding: 5px;
             font-family: Inter;
@@ -26,6 +26,8 @@
 
         th {
             background-color: #f2f2f2;
+            border: 10px solid #ffffff;
+
         }
 
         p {
@@ -56,9 +58,11 @@
                             <p> Time: {{notifications.start_time}} - {{notifications.end_time}}</p>
                             <p> Batch: {{notifications.batch}}</p>
                             <p> Stream: {{notifications.stream}}</p>
-                            <p>Please ensure you are prepared and ready to participate in the quiz. We recommend logging into the quiz portal at least 10 minutes before the start time to avoid any technical issues.</p>
+                            <p>Please ensure you are prepared and ready to participate in the quiz.
+                               We recommend logging into the quiz portal at least 10 minutes before the start time to avoid any technical issues.
+                            </p>
                             <p>Best regards,</p>
-                            <p>{{notifications.teacher_name}}</p>
+                            <p><b style="color: rgb(1, 54, 1);">{{notifications.teacher_name}}</b></p>
                     </th>
                 </thead>
                 {% endfor %}

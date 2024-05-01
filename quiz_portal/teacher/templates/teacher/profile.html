@@ -1,4 +1,6 @@
+
 {% extends 'teacher/main.html' %}
+{% load static %}
 
 {% block content %}
 <main>
@@ -9,7 +11,7 @@
         </div>
         <div class="profile-info">
             <div class="profile-picture">
-                <img src="https://shorturl.at/dgJP1" alt="Profile Picture">
+                <img src="{% static 'student/images/'%}{{profile.id}}.jpg" alt="Profile Picture">
             </div>
             <div class="profile-details">
                 <div class="name_profile">

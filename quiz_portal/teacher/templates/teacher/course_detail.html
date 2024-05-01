@@ -4,28 +4,92 @@
 
 <body>
     <main>
+        <style>
+            .Courses-display-container {
+                width: 288px;
+                height: 539px;
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+                align-items: center;
+                gap: 25px;
+                padding: 0;
+                margin-top: 30px;
+                margin-left: 30px;
+                margin-right: 35px;
+                margin-bottom: 35px;
+                border-radius: 10px;
+                border: solid 0.5px #00d1ff;
+                background-color: #fefefe;
+            }
+
+            .quizs-check-details-buttom {
+                width: 242px;
+                height: 0px;
+                margin-top: 17px;
+                margin-bottom: -18px;
+                margin-left: -17.5px;
+                align-self: stretch;
+                flex-grow: 0;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                gap: 10px;
+                padding: 23px;
+                background-color: #00d1ff;
+                border-bottom-right-radius: 10px 10px;
+                border-bottom-left-radius: 10px 10px;
+            }
+
+            .quizs-uploaded-details-buttom {
+                width: 242px;
+                height: 0px;
+                margin-top: 17px;
+                margin-bottom: -18px;
+                margin-left: -17.5px;
+                align-self: stretch;
+                flex-grow: 0;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                gap: 10px;
+                padding: 23px;
+                background-color: #0495b6;
+                /* border-radius: 10px; */
+                border-bottom-right-radius: 5px 5px;
+                border-bottom-left-radius: 5px 5px;
+            }
+        </style>
         <!----------- Quiz Progress ------->
         <br>
         <!---------- my courses ---------------->
-        <div class="containerCourses">  
+        <div class="containerCourses" style="height: {{actualheightfcourses}}px;">
             <div class="containerHeader">
                 <h1 class="Quiz-Progress">
-                    Dashboard
+                    Quiz Details
                 </h1>
             </div>
-     
+
+            {% if showmessage %}
+            <p style="text-align: center;">Quizzes not available</p>
+            {% endif %}
+        
 
             <div class="layout">
                 {% for course in details %}
-                <div class="Courses-All-display-container">
+                <div class="Courses-display-container">
+                   
                     <div class="imagecoursebox">
                         <!-- Assuming you have a field for image URL in your TeacherCourses model -->
-                        <img class="subjectImage" src="https://raw.githubusercontent.com/kunaladarsh/QuizMunch-Frontend/main/Quiz%20Munch/Image/course_name_1.png">
+                        <img class="subjectImage"
+                            src="https://raw.githubusercontent.com/kunaladarsh/QuizMunch-Frontend/main/Quiz%20Munch/Image/course_name_1.png">
 
                     </div>
                     <div class="courses-year">
                         <span class="courses-name">
-                           Quiz Name: {{ course.quiz_name }}
+                            Quiz Name: {{ course.quiz_name }}
                         </span>
                         <span class="Instructor-name">
                             Start - {{ course.start_time }} - {{ course.start_date }}
@@ -51,36 +115,38 @@
                                 </div>
                             </div>
                         </span>
-                        <div class="courses-check-details-buttom">
+                        <div class="quizs-check-details-buttom">
                             <a href="{% url 'quizquestions' course.uuid %}" class="Check-Details">
-                                View Questions
+                                View Question
                             </a>
-                            
                         </div>
 
-                        <div class="courses-check-details-buttom">
-                            {% if course.upload %}
+
+                        {% if course.upload %}
+                        <div class="quizs-uploaded-details-buttom">
                             <a class="Check-Details uploaded">
-                               Quiz Uploaded
+                                Quiz Uploaded
                             </a>
-                            {% else %}
-                            <a href="{% url 'upload_quiz' course.uuid %}" class="Check-Details" id="upload_quiz">
-                               Upload Quiz
-                            </a>
-                            {% endif %}
                         </div>
-                        <div class="courses-check-details-buttom">
+                        {% else %}
+                        <div class="quizs-check-details-buttom">
+                            <a href="{% url 'upload_quiz' course.uuid %}" class="Check-Details" id="upload_quiz">
+                                Upload Quiz
+                            </a>
+                        </div>
+                        {% endif %}
+
+
+                        <div class="quizs-check-details-buttom">
                             <a href="{% url 'studentresults' course.uuid %}" class="Check-Details" id="upload_quiz">
                                 See results
-                             </a>
-                         </div>
+                            </a>
+                        </div>
                     </div>
                 </div>
                 {% endfor %}
             </div>
         </div>
     </main>
-
-
 </body>
 {% endblock content %}

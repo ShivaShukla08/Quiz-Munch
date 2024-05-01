@@ -13,7 +13,9 @@ import pytz  # If you need to work with time zones
 from datetime import datetime
 from django.contrib import messages
 from student.models import response_table, StudentsProfile
-
+from django.http import HttpResponse
+from openpyxl import Workbook
+from openpyxl.styles import Font, Alignment
 
 # Create your views here.
 @login_required
@@ -74,6 +76,16 @@ def course_detail(request, course_id):
     tid = request.user.username
     details = Quiz_details.objects.filter(course_id=course_id, teacher_id=tid)
     
+    size =  details.count()
+    actualheightfcourses = 700
+    if(size > 3):   
+     actualheightfcourses += (600 * (math.ceil(size/3)-1))
+    showmessage = False
+    if(size == 0):
+        actualheightfcourses = 400
+        showmessage = True
+
+
     if request.method == 'POST':
         # Check if the quiz has been uploaded
         if 'upload_quiz' in request.POST:
@@ -87,7 +99,8 @@ def course_detail(request, course_id):
             else:
                 messages.warning(request, 'Quiz has already been uploaded.')
 
-    return render(request, 'teacher/course_detail.html', {'details': details})
+
+    return render(request, 'teacher/course_detail.html', {'details': details, 'actualheightfcourses':actualheightfcourses, 'showmessage':showmessage})
 
 def upload_quiz(request, course_uuid):
     try:
@@ -215,14 +228,13 @@ def create_quiz(request):
                 qnum +=1
             j += 1
         
-
     user_id = request.user.username
     details = TeacherCourse.objects.filter(tid=user_id)
     return render(request, 'teacher/create_quiz.html', {'details': details})
 
 def quizquestions(request,quiz_uuid):
     questions = Quiz_Question_detail.objects.filter(uuid=quiz_uuid)
-    print(questions)
+    # print(questions)
     return render(request, 'teacher/quiz_display.html', {'questions': questions})
 
 
@@ -234,7 +246,31 @@ def teacherprofile(request):
 @login_required
 def studentresults(request, quiz_uuid):
     responses = response_table.objects.filter(uuid=quiz_uuid)
-    print(responses)
+    # print(responses)
+    student_scores = { }
+
+    for response in responses:
+        sap_id = response.sap_id
+        student_profile = StudentsProfile.objects.filter(user_id=sap_id).first()
+        score = response.total_correct
+        incorrect = response.total_incorrect
+        if student_profile:
+            student_scores[student_profile.name] = {'sap_id': sap_id, 'score': score, 'incorrect':incorrect}    
+    print(student_scores)
+
+    quizid = quiz_uuid
+    
+    return render(request, 'teacher/student_results.html', {'student_scores': student_scores, 'quizid': quizid})
+
+
+@login_required
+def generate_excel(request, quizid):
+    # Create a new Workbook
+    wb = Workbook()
+    ws = wb.active
+    
+    responses = response_table.objects.filter(uuid=quizid)
+    
     student_scores = {}
 
     for response in responses:
@@ -243,7 +279,35 @@ def studentresults(request, quiz_uuid):
         score = response.total_correct
         incorrect = response.total_incorrect
         if student_profile:
-            student_scores[student_profile.name] = {'sap_id': sap_id, 'score': score, 'incorrect':incorrect}
-    
+            student_scores[student_profile.name] = {'sap_id': sap_id, 'score': score, 'incorrect':incorrect}    
+
     print(student_scores)
-    return render(request, 'teacher/student_results.html', {'student_scores': student_scores})
+
+    # Sample data
+    # Add headings to data
+    data = [
+        ['Student Name', 'SAP ID', 'Score', 'Incorrect Question']
+    ]
+
+    ws.append(['Student Name', 'SAP ID', 'Score', 'Incorrect Question'])
+
+    # Write data to worksheet
+    for student_name, data in student_scores.items():
+        # ws.append(['Student Name', 'SAP ID', 'Score', 'Incorrect Question'])
+        ws.append([student_name, data['sap_id'], data['score'], data['incorrect']])
+
+    # Apply formatting
+    header_font = Font(bold=True)
+    header_alignment = Alignment(horizontal='center')
+    for cell in ws[1]:
+        cell.font = header_font
+        cell.alignment = header_alignment
+
+    # Set response headers
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=my_excel_file.xlsx'
+
+    # Save workbook to response
+    wb.save(response)
+
+    return response
