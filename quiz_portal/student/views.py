@@ -7,7 +7,8 @@ from .models import StudentsProfile, CoreStreams, response_table, Feedback
 from . import views                                                   
 import math
 from django.http import JsonResponse
-
+from django.utils import timezone
+from datetime import datetime
 import datetime
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
@@ -83,6 +84,36 @@ def profile(request):
     return render(request, 'student/profile.html', {"profile_details": profile_details})
 
 
+# # convert total time of quiz
+def convert_total_time(start_time_str, end_time_str):
+      # Parse start time string
+      start_hour = int(start_time_str[:2])
+      start_minute = int(start_time_str[3:5])
+      start_second = int(start_time_str[6:])
+
+      # Parse end time string
+      end_hour = int(end_time_str[:2])
+      end_minute = int(end_time_str[3:5])
+      end_second = int(end_time_str[6:])
+
+      # Calculate time difference
+      hours_diff = end_hour - start_hour
+      minutes_diff = end_minute - start_minute
+      seconds_diff = end_second - start_second
+
+      # Adjust for negative differences
+      if seconds_diff < 0:
+          seconds_diff += 60
+          minutes_diff -= 1
+      if minutes_diff < 0:
+          minutes_diff += 60
+          hours_diff -= 1
+
+
+      totaltime = hours_diff * 60 + minutes_diff + (int)(seconds_diff/60)
+      return totaltime
+
+
 @login_required
 def quizdisplay(request, quiz_uuid):
 
@@ -94,23 +125,20 @@ def quizdisplay(request, quiz_uuid):
     endtime = quizdeatils.end_time
     startdate = quizdeatils.start_date
     enddate = quizdeatils.end_date
-    user_id = request.user.username  
+    user_id = request.user.username
 
-    print(starttime)
-    print(startdate)
+    print(currentTime.strftime("%H:%M:%S"))
 
-    print(enddate)
-    print(endtime)
-
-    print(currentDate)
-    print(currentTime)
-
+    caltime =  convert_total_time(currentTime.strftime("%H:%M:%S"), endtime.strftime("%H:%M:%S"))
+    timer = (int)(caltime)
+    print(timer)
+ 
     quizResponseDeatils = response_table.objects.filter(uuid=quiz_uuid, sap_id=user_id).values()
 
     if(startdate < currentDate < enddate):
         if quizResponseDeatils.count() <= 0:
             question = Quiz_Question_detail.objects.filter(uuid=quiz_uuid)
-            return render(request, 'student/Quiz_display.html', {'question': question,'quuid':quiz_uuid})
+            return render(request, 'student/Quiz_display.html', {'question': question,'quuid':quiz_uuid, 'timer':timer})
         else:
             return HttpResponse("you are already attempted this quiz.")
 
@@ -118,7 +146,7 @@ def quizdisplay(request, quiz_uuid):
     
         if quizResponseDeatils.count() <= 0:
             question = Quiz_Question_detail.objects.filter(uuid=quiz_uuid)
-            return render(request, 'student/Quiz_display.html', {'question': question,'quuid':quiz_uuid})
+            return render(request, 'student/Quiz_display.html', {'question': question,'quuid':quiz_uuid, 'timer':timer})
         else:
             return HttpResponse("you are already attempted this quiz.")
     else:
@@ -154,7 +182,11 @@ def studentCourseDetail(request, course_id):
  
 @login_required
 def submit_quiz(request,quiz_uuid):
-    user_id = request.user.username    
+    user_id = request.user.username
+    quizResponseDeatils = response_table.objects.filter(uuid=quiz_uuid, sap_id=user_id).values()
+    if quizResponseDeatils.count() > 0:
+        return HttpResponse("You are already submitted quiz")
+    
     if request.method == 'POST':
         total_correct = 0
         total_incorrect = 0
@@ -245,3 +277,8 @@ def submit_feedback(request):
     else:
         # Handle other HTTP methods (e.g., GET) if needed
         return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+
+def resources(request):
+
+    return render(request, 'student/resources.html')

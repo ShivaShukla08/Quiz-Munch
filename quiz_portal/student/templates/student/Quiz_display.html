@@ -6,7 +6,7 @@
     <button class="fullscreen-btn" onclick="openFullscreen();">Open Fullscreen</button>
     <div class="quiz-container">
         <h1>Multiple Choice Quiz</h1>
-        <div id="timer" style="font-size: 2em;">{{ '5:00'}}</div> <!-- Timer display -->
+        <div id="timer" style="font-size: 2em;">'{{timer}}:00'</div> <!-- Timer display -->
         <hr>
         <form id="quiz-form" action="{% url 'submit_quiz' quuid %}" method="post">
           {% csrf_token %}
@@ -57,7 +57,7 @@
     }
     document.addEventListener("DOMContentLoaded", function() {
       // Set the countdown time (in seconds)
-      var countdownTime = 1 * 60; // 20 minutes
+      var countdownTime = {{timer}} * 60; // 20 minutes
 
       var timerElement = document.getElementById("timer"); // Timer display element
       var submitButton = document.getElementById("submitButton"); // Submit button element

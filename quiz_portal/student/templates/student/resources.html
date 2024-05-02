@@ -1,0 +1,53 @@
+{% load static %}
+{% include 'student/header.html' %}
+
+{% block content %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDF Viewer</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+
+
+    .container {
+        width: 80%;
+        height: 100%;
+        border: 1px solid #ccc;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+    main{
+        padding: 50px;
+        width: 100%;
+    }
+
+ 
+</style>
+</head>
+<body>
+
+<main>
+    <div class="container">
+        <embed src="{% static 'student/images/CLO031GU03.pdf' %}" type="application/pdf" title="Embedded PDF Viewer" aria-label="Embedded PDF Viewer" width="100%" height="300px"><br><br>
+        <!-- Fallback content in case the browser does not support embedded PDFs -->
+        <embed src="{% static 'student/images/CLO031GU03.pdf' %}" type="application/pdf" title="Embedded PDF Viewer" aria-label="Embedded PDF Viewer" width="100%" height="300px"><br><br>
+            <embed src="{% static 'student/images/CLO031GU03.pdf' %}" type="application/pdf" title="Embedded PDF Viewer" aria-label="Embedded PDF Viewer" width="100%" height="300px"><br><br>
+                <embed src="{% static 'student/images/CLO031GU03.pdf' %}" type="application/pdf" title="Embedded PDF Viewer" aria-label="Embedded PDF Viewer" width="100%" height="300px"><br><br>
+                    <embed src="{% static 'student/images/CLO031GU03.pdf' %}" type="application/pdf" title="Embedded PDF Viewer" aria-label="Embedded PDF Viewer" width="100%" height="300px"><br><br>
+                        <embed src="{% static 'student/images/CLO031GU03.pdf' %}" type="application/pdf" title="Embedded PDF Viewer" aria-label="Embedded PDF Viewer" width="100%" height="300px"><br><br>
+
+    </div>
+</main>  
+
+</body>
+</html>
+{% include 'student/footer.html' %}
+{% endblock content %}
