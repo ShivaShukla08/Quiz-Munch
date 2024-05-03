@@ -1,4 +1,5 @@
 {% extends 'teacher/main.html' %}
+{% load static %}
 
 {% block content %}
 
@@ -83,8 +84,10 @@
                    
                     <div class="imagecoursebox">
                         <!-- Assuming you have a field for image URL in your TeacherCourses model -->
-                        <img class="subjectImage"
+                        <!-- <img class="subjectImage"
                             src="https://raw.githubusercontent.com/kunaladarsh/QuizMunch-Frontend/main/Quiz%20Munch/Image/course_name_1.png">
+ -->
+                    <img class="subjectImage" src="{% static 'student/images/'%}{{ course.course_id }}.png">
 
                     </div>
                     <div class="courses-year">

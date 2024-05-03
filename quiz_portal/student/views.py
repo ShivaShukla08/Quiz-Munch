@@ -252,7 +252,6 @@ def notifications(request):
 def feedback(request):
     return render(request, 'student/feedback.html')
 
-from django.http import JsonResponse
 
 @login_required
 def submit_feedback(request):
