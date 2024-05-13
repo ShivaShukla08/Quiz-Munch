@@ -1,0 +1,102 @@
+{% load static %}
+<html>
+
+<head>
+  <style type='text/css'>
+    body,
+    html {
+      margin: 0;
+      padding: 10px;
+    }
+
+    body {
+      color: black;
+      display: table;
+      font-family: Georgia, serif;
+      font-size: 24px;
+      text-align: center;
+    }
+
+    .container {
+      border: 20px solid #0007b0;
+      width: 750px;
+      height: 563px;
+      display: table-cell;
+      vertical-align: middle;
+      position: relative;
+      box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+    }
+
+    .logo {
+      color: #0007b0;
+    }
+    
+    .marquee {
+      color: #0007b0;
+      font-size: 48px;
+      margin: 20px;
+    }
+
+    .assignment {
+      margin: 20px;
+    }
+
+    .person {
+      border-bottom: 2px solid black;
+      font-size: 32px;
+      font-style: italic;
+      margin: 20px auto;
+      width: 400px;
+    }
+
+    .reason {
+      margin: 20px;
+    }
+
+    .logo_text {
+      width: 172px;
+      height: 29px;
+      margin: 26px 16px 4px 0;
+      font-family: Inter;
+      font-size: 32px;
+      font-weight: normal;
+      font-stretch: normal;
+      font-style: normal;
+      line-height: 0.56;
+      letter-spacing: 1.6px;
+      text-align: left;
+      color: #0007b0;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <span class="logo_text">
+      QUIZ MUNCH
+    </span>
+
+
+    <div class="marquee">
+      Certificate of Completion
+    </div>
+
+    <div class="assignment">
+      This certificate is presented to
+    </div>
+
+    <div class="person">
+      {{certificated_details.student_name}}
+    </div>
+
+    <div class="reason">
+      has successfully completed {{certificated_details.course_name}} <br />
+      quizes with <b> {{certificated_details.percentage}}% </b> scores.
+      <br />
+    </div>
+    Issues Date: {{certificated_details.completion_date}}<br /><br>
+    Certificate id: {{certificated_details.certificate_id}}
+  </div>
+</body>
+
+</html>

@@ -7,11 +7,14 @@ urlpatterns = [
     path('profile/',views.profile, name="profile"),
     path('notifications/',views.notifications, name="notifications"),
     path('feedback/', views.feedback, name='feedback'),
+    path('help/', views.help, name='help'),
     path('studentCourseDetail/<str:course_id>/', views.studentCourseDetail, name='studentCourseDetail'),
     path('login/', views.user_login, name="login"),
     path('userlogout/', views.userlogout, name="userlogout"),
     path('quizdisplay/<str:quiz_uuid>/', views.quizdisplay, name='quizdisplay'),
     path('submit_quiz/<str:quiz_uuid>/', views.submit_quiz, name='submit_quiz'),
+    path('Quizresult/<str:quiz_uuid>/', views.Quizresult, name="Quizresult"),
+    path('verify.certificate/<str:certificated_id>/', views.quizCertificated, name="quizCertificated"),
 
     path('submit-feedback/', views.submit_feedback, name='submit_feedback'),
 

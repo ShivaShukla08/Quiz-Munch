@@ -1,0 +1,320 @@
+{% load static %}
+{% include 'student/header.html' %}
+{% block content %}
+<style>
+  .backgroundColourviewResult {
+    width: 1200px;
+    height: 369px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 20px;
+    margin: 43px -8px 0 50px;
+    margin-left: 30px;
+    margin-right: 10%;
+    padding: 0px;
+    border-radius: 10px;
+    border: solid 0.5px #ececec;
+    background-color: #ffffff;
+  }
+
+  .ResultQuizzesbar {
+    width: 301px;
+    height: 171px;
+    flex-grow: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 44px;
+    padding: 0;
+    margin-left: 320px;
+    margin-top: -170px;
+    background-color: #11ffee00;
+    ;
+  }
+
+  .ResultQuizzesText {
+    width: 321px;
+    height: 171px;
+    flex-grow: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 44px;
+    padding: 0;
+    margin-left: -600px;
+  }
+
+  .correctscore {
+    width: 26px;
+    height: 26px;
+    background-color: #302ca9;
+  }
+
+  .incorrectscore {
+    width: 26px;
+    height: 26px;
+    background-color: #bf2507;
+  }
+
+  #popup-link1 {
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  #popup-window1 {
+    display: none;
+    cursor: pointer;
+  }
+
+  #close-button1 {
+    /* background-color: #080bab; */
+    background-image: linear-gradient(to right, #00d1ff -3%, #00ffe0 152%);
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 16px;
+    cursor: pointer;
+    flex-grow: 0;
+    font-family: Inter;
+    font-size: 17px;
+    font-weight: normal;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: 1.29;
+    letter-spacing: normal;
+    text-align: center;
+    margin-left: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+
+  #close-button1:hover {
+    background-color: #0b097d;
+  }
+
+  table {
+    width: 1250px;
+    border-collapse: collapse;
+    height: 15px;
+    margin-left: 7px;
+  }
+
+  th {
+    border: 1px solid #dddddd;
+    text-align: center;
+    padding: 2px;
+    font-family: Inter;
+    font-size: 20px;
+    font-weight: 500;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: 2.75;
+    letter-spacing: normal;
+    background-image: linear-gradient(to right, #1622ab -3%, #152097 102%);
+    color: #fff;
+  }
+
+
+  td {
+    border: 1px solid #dddddd;
+    text-align: center;
+    padding: 2px;
+    font-family: Inter;
+    font-size: 20px;
+    font-weight: 500;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: 2.75;
+    letter-spacing: normal;
+
+  }
+
+  .view {
+    background-color: #787878;
+    border-color: #999999;
+    border-radius: 1px;
+  }
+
+  .viewtext {
+    color: #ffffff;
+  }
+
+  .viewdetails {
+    width: 300px;
+    height: 25px;
+    flex-grow: 0;
+    font-family: Inter;
+    font-size: 18px;
+    font-weight: 500;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: 1.39;
+    letter-spacing: normal;
+    text-align: left;
+    color: #4a5568;
+  }
+
+  .viewdetails a {
+    color: #4a5568;
+    text-decoration: none;
+  }
+
+  .viewdetails a:hover {
+    color: #445a7f;
+  }
+
+  .Certificate-button{
+    background-image: linear-gradient(to right, #00d1ff -3%, #00ffe0 152%);
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 16px;
+    cursor: pointer;
+    flex-grow: 0;
+    font-family: Inter;
+    font-size: 17px;
+    font-weight: normal;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: 1.29;
+    letter-spacing: normal;
+    text-align: center;
+    margin-left: 0px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    width: 200px;
+ 
+  }
+</style>
+
+<main>
+  <!----------- Quiz Progress ------->
+  <div class="Container-Quizzes-progress">
+    <div class="containerHeader">
+      <h1 class="Quiz-Progress">
+        View Result
+      </h1>
+    </div>
+
+    <div class="backgroundColourviewResult">
+      <div class="ResultQuizzesText">
+        <br>
+        <span class="Overall-Progress-of-Quizzes">
+          Overall Progress of Quizzes Result
+        </span>
+        <div class="progress1">
+          <div class="correctscore"></div>
+          <span class="Pending-Quizzes">
+            Correct Score - <b>{{result.total_correct}}</b>
+          </span>
+        </div>
+
+        <div class="progress1">
+          <div class="incorrectscore"></div>
+          <span class="Pending-Quizzes">
+            Incorrect Score - <b>{{result.total_incorrect}}</b>
+          </span>
+        </div>
+
+        <span class="viewdetails">
+          <a id="popup-link1" style="text-decoration: underline;">
+            View Detais Quiz Analysis
+          </a>
+
+          <a href="{% url 'quizCertificated' certificated_id %}"> <button class="Certificate-button">Get Your Certificate            
+         </button></a>
+
+          
+        </span>
+      </div>
+
+      <div class="ResultQuizzesbar">
+        <div id="piechart"></div>
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+        <script type="text/javascript">
+          google.charts.load('current', { 'packages': ['corechart'] });
+          google.charts.setOnLoadCallback(drawChart);
+
+          function drawChart() {
+            var data = google.visualization.arrayToDataTable([
+              ['Task', 'Quiz Progress'],
+              ['Correct Score', {{ result.total_correct }} ],
+          ['Incorrect Score', {{ result.total_incorrect }}]
+                    ]);
+
+          var options = { 'width': 495, 'height': 340 };
+
+          var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+          chart.draw(data, options);
+                    }
+        </script>
+      </div>
+
+    </div>
+  </div>
+  <br>
+
+
+  <div id="popup-window1">
+    <div class="containerCourses" style="height: 700px;">
+
+      <button id="close-button1">Close Analysis</button>
+
+      
+
+      <div class="layout">
+        <table>
+          <thead>
+            <tr>
+              <th>Question Number</th>
+              <th>Answer key</th>
+              <th>Answer Marked</th>
+              <th>Your Time Taken mm.ss</th>
+              <th>Others Avg Time mm.ss</th>
+              <th>View Ques.</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for details in DetaisAnalysis %}
+            <tr {% if details.answer_key != details.answer_marked %} style="background-color: rgb(235, 107, 107);" {% endif %}>
+              <td> Q.{{details.question_number}}</td>
+              <td> {{details.answer_key}} </td>
+              <td> {{details.answer_marked}} </td>
+              <td> {{details.your_time_taken}} </td>
+              <td> 1.00 </td>
+              <td> <button class="view">
+                  <span class="viewtext">view
+                  </span>
+                </button></td>
+            </tr>
+            {% endfor %}
+
+          </tbody>
+        </table>
+        <br>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+<script>
+  var popupLink1 = document.getElementById("popup-link1");
+  var popupWindow1 = document.getElementById("popup-window1");
+  var closeButton1 = document.getElementById("close-button1");
+
+  popupLink1.addEventListener("click", function () {
+    popupWindow1.style.display = "block";
+  });
+
+  // Hide the pop-up window when the close button is clicked
+  closeButton1.addEventListener("click", function () {
+    popupWindow1.style.display = "none";
+  });
+</script>
+{% include 'student/footer.html' %}
+{% endblock content %}

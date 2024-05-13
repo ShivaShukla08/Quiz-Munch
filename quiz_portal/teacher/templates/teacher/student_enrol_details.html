@@ -1,0 +1,105 @@
+{% extends 'teacher/main.html' %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Results</title>
+    <style>
+        table {
+            width: 1250px;
+            border-collapse: collapse;
+            height: 15px;
+        }
+
+        th,
+        td {
+            border: 1px solid #dddddd;
+            text-align: center;
+            padding: 2px;
+            font-family: Inter;
+            font-size: 20px;
+
+            font-weight: 500;
+            font-stretch: normal;
+            font-style: normal;
+            line-height: 2.75;
+            letter-spacing: normal;
+        }
+
+        th {
+            background-color: #f2f2f2;
+
+        }
+
+        .excel-download-button {
+            background-color: #100f6d;
+            /* Green */
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            margin: 4px 2px;
+            cursor: pointer;
+            margin-left: 1058px;
+            border-radius: 5px;
+            text-align: center;
+            font-family: Inter;
+            font-size: 19px;
+            font-stretch: normal;
+            font-style: normal;
+        }
+    </style>
+</head>
+
+<body>
+    <br><br>
+    <div class="containerCourses">
+        <div class="containerHeader">
+            <h1 class="Quiz-Progress">
+                Student Details
+            </h1>
+        </div>
+        
+        <div class="layout">
+
+            <table>
+                <thead>
+                    <tr>
+                        <th><b>Student Name</b></th>
+                        <th><b>SAP ID</b></th>
+                        <th><b>Semester</b></th>
+                        <th><b>Stream</b></th>
+                        <th><b>Contact No</b></th>
+                        <th><b>Email</b></th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for Detail in Studentdetails %}
+                    <tr>
+                        <td>{{ Detail.name }}</td>
+                        <td>{{ Detail.user_id }}</td>
+                        <td>{{ Detail.semester }}</td>
+                        <td>{{ Detail.stream }}</td>
+                        <td>{{ Detail.contact_no }}</td>
+                        <td>{{ Detail.personal_mail }}</td>
+                    </tr>
+
+                    {% endfor %}
+                </tbody>
+            </table>
+            <br>
+        </div>
+    </div>
+
+</body>
+
+</html>
+{% endblock content %}

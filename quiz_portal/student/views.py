@@ -3,9 +3,11 @@ from django.contrib.auth.models import User
 from django.shortcuts import render,redirect
 from django.contrib.auth import login, authenticate, logout
 from django.http import HttpResponse
-from .models import StudentsProfile, CoreStreams, response_table, Feedback
+from .models import StudentsProfile, CoreStreams, response_table, Feedback, QuizDetailsResponse, CompletionCertificates
 from . import views                                                   
 import math
+import uuid
+from django.http import Http404
 from django.http import JsonResponse
 from django.utils import timezone
 from datetime import datetime
@@ -42,7 +44,7 @@ def userlogout(request):
     logout(request)
     messages.info(request,'User was logged out')
     return render(request,'student/login.html')
-
+    
 
 @login_required
 def home(request):
@@ -60,6 +62,10 @@ def home(request):
     if(size > 3):   
       actualheightfcourses += (510 * (math.ceil(size/3)-1))
 
+    completed_Quizzes = 0
+    pendingquiz = 0
+      
+    upcomingQuizzesDetails = []
     for course in course_details:
         teacher_details = TeacherCourse.objects.filter(course_id=course['course_id'], batch= batch).first()
         
@@ -71,10 +77,41 @@ def home(request):
       
         if teacher_details:
             course_id=course['course_id']
-            Quiz = Quiz_details.objects.filter(teacher_id = teacher_details.teacher_id, course_id = course_id, batch= batch).values()
-            course['total_quiz'] = Quiz.count()
+            Quizdetails = Quiz_details.objects.filter(teacher_id = teacher_details.teacher_id, course_id = course_id, batch= batch).values()
+            # print(Quizdetails)
+
+            CompletedQuiz = 0
+            pending_quiz = 0
+            
+            for Quiz in Quizdetails:
+                # get upcoming Quiz information
+                currentDate = datetime.date.today()
+                startdate = Quiz['start_date']
+                if currentDate <= startdate and len(upcomingQuizzesDetails) < 4:
+                    course_name = CoreStreams.objects.filter(course_id = course_id).values('course_name').first()
+                    Quiz['course_name'] = course_name['course_name']
+                    upcomingQuizzesDetails.append(Quiz)
+
+                # get completed Quiz , pending Quiz and Quiz bar percentage
+                quizResponseDeatils = response_table.objects.filter(uuid = Quiz['uuid'], sap_id=user_id).values()
+                if quizResponseDeatils:
+                    CompletedQuiz += 1
+                    completed_Quizzes += 1
+                else:
+                    pendingquiz += 1
+                    pending_quiz += 1
+
+            percentage = 0
+            if (CompletedQuiz+ pending_quiz != 0):
+                percentage = (CompletedQuiz / (CompletedQuiz+ pending_quiz)) * 100
+
+            course['barCourses'] = (300 * percentage)/100
+            course['total_quiz'] = Quizdetails.count()
+            course['CompletedQuiz'] = CompletedQuiz
+    
+    print(upcomingQuizzesDetails)
                 
-    return render(request, 'student/home.html', {"course_details": course_details, "actualheightfcourses": actualheightfcourses})
+    return render(request, 'student/home.html', {"course_details": course_details, "actualheightfcourses": actualheightfcourses, 'completed_Quizzes': completed_Quizzes, 'pendingquiz': pendingquiz, 'upcomingQuizzesDetails':upcomingQuizzesDetails})
 
 
 @login_required
@@ -168,24 +205,65 @@ def studentCourseDetail(request, course_id):
     batch = user_details.batch
 
     teacher_details = TeacherCourse.objects.filter(course_id = course_id, batch= batch).first()
-    details = Quiz_details.objects.filter(teacher_id = teacher_details.teacher_id, course_id = course_id, batch= batch).values()
+    details = [ ]
 
-    # print(details)
+    if teacher_details:
+       Quizdetails = Quiz_details.objects.filter(teacher_id = teacher_details.teacher_id, course_id = course_id, batch= batch).values()
+       
+       for quiz in Quizdetails:
+            checkvalue = quizdisplaycheck(quiz['uuid'], user_id)
+            QuizStart = False
+            AlreadyAttempted = False
+            MissedQuiz = False
+            QuizNotStarted = False
+
+            if checkvalue == "QuizStart":
+                QuizStart = True
+            elif checkvalue == "AlreadyAttempted":
+                AlreadyAttempted = True
+            elif checkvalue == "MissedQuiz":
+                MissedQuiz = True
+            elif checkvalue == "QuizNotStarted":
+                QuizNotStarted = True
+
+            quiz['QuizStart'] = QuizStart
+            quiz['AlreadyAttempted'] = AlreadyAttempted
+            quiz['MissedQuiz'] = MissedQuiz
+            quiz['QuizNotStarted'] = QuizNotStarted
+            
+            details.append(quiz)
+
     # set myquizes hight in run time
-    size =  details.count()
+    size = 0
+    if details:
+       size = len(details)
+
     actualheightfcourses = 590
     if(size > 3):   
      actualheightfcourses += (510 * (math.ceil(size/3)-1))
+    
+    showmessage = False
+    if(size == 0):
+        actualheightfcourses = 400
+        showmessage = True
 
-    return render(request, 'student/Quiz_detail.html', {'details': details, "actualheightfcourses": actualheightfcourses})
+    return render(request, 'student/Quiz_detail.html', {'details': details, "actualheightfcourses": actualheightfcourses, "showmessage":showmessage})
+
+from django.urls import reverse
 
  
 @login_required
 def submit_quiz(request,quiz_uuid):
     user_id = request.user.username
+    certificated_id = uuid.uuid4()
     quizResponseDeatils = response_table.objects.filter(uuid=quiz_uuid, sap_id=user_id).values()
+    
+    quizresult_url = reverse('Quizresult', kwargs={'quiz_uuid': quiz_uuid})
+
     if quizResponseDeatils.count() > 0:
-        return HttpResponse("You are already submitted quiz")
+        
+        return redirect(quizresult_url)
+        # return HttpResponse("You are already submitted quiz")
     
     if request.method == 'POST':
         total_correct = 0
@@ -205,16 +283,108 @@ def submit_quiz(request,quiz_uuid):
                     total_incorrect +=1
             else:
                 total_incorrect +=1
-        
+
+            quiz_response = QuizDetailsResponse(
+            uuid=quiz_uuid,
+            sap_id=user_id,
+            question_number= question.question_number,
+            answer_key = question.correct_answer,
+            answer_marked = selected_option[7],
+            your_time_taken = "0.50"
+            )
+            quiz_response.save()
+
         result = response_table(uuid=quiz_uuid,sap_id=user_id,total_correct=total_correct, total_incorrect=total_incorrect)
         result.save()
 
-        return JsonResponse({'success': True, 'total_correct': total_correct})
+        certificated_details = CompletionCertificates(
+        uuid=quiz_uuid,
+        sap_id=user_id,
+        certificate_id=certificated_id,
+        correctMarks = total_correct,
+        TotalMarks = total_correct + total_incorrect,
+        completion_date = datetime.date.today()
+        )
+        print(certificated_details)
+        certificated_details.save()
+        
+        return redirect(quizresult_url)
+    
+        # return redirect('Quizresult')
+    
     else:
-        print(total_correct)
+
         return JsonResponse({'error': 'This view only accepts POST requests'}, status=405)
 
+
+
+def quizdisplaycheck(quiz_uuid, user_id):
+    currentTime = datetime.datetime.now().time()
+    currentDate = datetime.date.today()
+    quizdeatils = Quiz_details.objects.filter(uuid=quiz_uuid).first()
+    starttime = quizdeatils.start_time
+    endtime = quizdeatils.end_time
+    startdate = quizdeatils.start_date
+    enddate = quizdeatils.end_date
+
+    caltime =  convert_total_time(currentTime.strftime("%H:%M:%S"), endtime.strftime("%H:%M:%S"))
+    timer = (int)(caltime)
+ 
+    quizResponseDeatils = response_table.objects.filter(uuid=quiz_uuid, sap_id=user_id).values()
+
+    if(startdate < currentDate < enddate):
+        if quizResponseDeatils.count() <= 0:
+            return "QuizStart"
+        else:
+            return "AlreadyAttempted"
+
+    if starttime <= currentTime <= endtime and startdate <= currentDate <= enddate:    
+        if quizResponseDeatils.count() <= 0:
+            return "QuizStart"
+        else:
+            return "AlreadyAttempted"
+    else:
+        if quizResponseDeatils.count() > 0:
+            return "AlreadyAttempted"
+        elif currentDate >= enddate:
+            if(currentDate == enddate and endtime < currentTime):
+                return "MissedQuiz"
+            elif(currentDate > enddate):
+                return "MissedQuiz"
+        
+        return "QuizNotStarted"
+
+
+@login_required
+def Quizresult(request, quiz_uuid):
+    user_id = request.user.username
+    certificated_id = ""
+    certificated_details = CompletionCertificates.objects.filter(uuid = quiz_uuid, sap_id = user_id).first()
+    if certificated_details:
+         certificated_id =certificated_details.certificate_id 
     
+    result = response_table.objects.filter(uuid=quiz_uuid, sap_id = user_id).first()
+    DetaisAnalysis = QuizDetailsResponse.objects.filter(uuid=quiz_uuid, sap_id = user_id).values()
+
+    return render(request, 'student/Quiz_result.html', {'result' : result, 'DetaisAnalysis':DetaisAnalysis, 'certificated_id': certificated_id})
+
+def quizCertificated(request, certificated_id):
+    certificated_details = CompletionCertificates.objects.filter(certificate_id = certificated_id).first()
+    sap_id = certificated_details.sap_id
+    student = StudentsProfile.objects.filter(user_id=sap_id).first()
+    certificated_details.student_name = student.name 
+
+    details = Quiz_details.objects.filter(uuid = certificated_details.uuid).first()
+    course = TeacherCourse.objects.filter(tid = details.teacher_id, course_id = details.course_id, batch = details.batch).first()
+    certificated_details.course_name = course.course_name 
+
+    certificated_details.percentage = (certificated_details.correctMarks) * 100 / (certificated_details.TotalMarks)
+    
+    print(course)
+    # print(Quiz_details)
+    return render(request, 'student/CertificateCompletion.html', {'certificated_details': certificated_details})
+
+
 @login_required
 def notifications(request):
     user_id = request.user.username
@@ -233,7 +403,7 @@ def notifications(request):
             course_id = course['course_id']
             course_name = course['course_name']
             teacher_name = teacher_details.teacher.name
-            print(teacher_name)
+            
             quizzes = Quiz_details.objects.filter(teacher_id=teacher_details.teacher_id, course_id=course_id, batch=batch).values()
             
             for quiz in quizzes:
@@ -242,9 +412,15 @@ def notifications(request):
                 details_list.append(quiz)
 
     size = len(details_list)
-    actualheightfnotification = 0
+    actualheightfnotification = 550
     if size > 1:
-        actualheightfnotification = (529 * size)
+        actualheightfnotification = (529 * (size))
+    details_list.reverse()
+
+    showmessage = False
+    if(size == 0):
+        actualheightfcourses = 400
+        showmessage = True
 
     return render(request, 'student/notifications.html', {'details_list': details_list, 'actualheightfnotification': actualheightfnotification})
 
@@ -252,6 +428,9 @@ def notifications(request):
 def feedback(request):
     return render(request, 'student/feedback.html')
 
+@login_required
+def help(request):
+    return HttpResponse('<h2>Working on Progress</h2>')
 
 @login_required
 def submit_feedback(request):
@@ -279,5 +458,5 @@ def submit_feedback(request):
 
 
 def resources(request):
-
+    
     return render(request, 'student/resources.html')

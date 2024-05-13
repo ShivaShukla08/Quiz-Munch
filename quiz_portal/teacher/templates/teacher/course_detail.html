@@ -8,7 +8,7 @@
         <style>
             .Courses-display-container {
                 width: 288px;
-                height: 539px;
+                height: 495px;
                 display: flex;
                 flex-direction: column;
                 justify-content: flex-start;
@@ -62,7 +62,85 @@
                 border-bottom-right-radius: 5px 5px;
                 border-bottom-left-radius: 5px 5px;
             }
+
+            .quizs-check-details-buttom:hover {
+                background-color: #11c2fd;
+            }
+
+            .deleteLogo {
+                margin-top: -90px;
+                margin-right: -200px;
+                width: 8px;
+                height: 0px;
+                flex-grow: 0;
+            }
+
+            .deleteLogoImage {
+                width: 40px;
+                mix-blend-mode: multiply;
+                filter: drop-shadow(16px 16px 20px rgb(255, 255, 255)) invert(1%);
+
+            }
+
+            .deleteLogoImage:hover {
+                width: 42px;
+                mix-blend-mode: multiply;
+                filter: drop-shadow(16px 16px 20px rgb(188, 255, 254)) invert(1%);
+
+            }
+
+
+/* Pop-up window styles */
+.popup-container {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    z-index: 9999; /* Ensure pop-up is on top of other content */
+}
+
+.popup-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fefefe; /* White background */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); /* Shadow effect */
+}
+
+.popup-message {
+    margin-bottom: 20px;
+}
+
+.popup-buttons {
+    text-align: center;
+}
+
+.popup-buttons button {
+    padding: 10px 20px;
+    margin: 0 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.popup-buttons button.primary {
+    background-color: #00d1ff; /* Blue color for primary button */
+    color: #fff;
+}
+
+.popup-buttons button.secondary {
+    background-color: #ccc; /* Light gray color for secondary button */
+    color: #000;
+}
+
         </style>
+
         <!----------- Quiz Progress ------->
         <br>
         <!---------- my courses ---------------->
@@ -76,20 +154,30 @@
             {% if showmessage %}
             <p style="text-align: center;">Quizzes not available</p>
             {% endif %}
-        
+
 
             <div class="layout">
                 {% for course in details %}
                 <div class="Courses-display-container">
-                   
+
                     <div class="imagecoursebox">
-                        <!-- Assuming you have a field for image URL in your TeacherCourses model -->
-                        <!-- <img class="subjectImage"
-                            src="https://raw.githubusercontent.com/kunaladarsh/QuizMunch-Frontend/main/Quiz%20Munch/Image/course_name_1.png">
- -->
-                    <img class="subjectImage" src="{% static 'student/images/'%}{{ course.course_id }}.png">
+                        <img class="subjectImage" src="{% static 'student/images/'%}{{ course.course_id }}.png">
+
+                        <!-- <div class="deleteLogo">
+                            <a href="{% url 'delete_quiz' course.uuid %}" class="Check-Details" id="upload_quiz">
+                                <img class="deleteLogoImage" src="{% static 'student/images/DeleteLogo1.jpeg'%}">
+                            </a>
+                        </div> -->
+
+                        <div class="deleteLogo">
+                            <!-- Add onclick event handler to trigger JavaScript function -->
+                            <a href="#" class="Check-Details" onclick="confirmDelete('{{ course.uuid }}', '{{ course.quiz_name }}')">
+                                <img class="deleteLogoImage" src="{% static 'student/images/DeleteLogo1.jpeg'%}">
+                            </a>
+                        </div>
 
                     </div>
+
                     <div class="courses-year">
                         <span class="courses-name">
                             Quiz Name: {{ course.quiz_name }}
@@ -105,26 +193,19 @@
                         <span class="Total-Quizes">
                             Batch: {{ course.batch }}
                         </span>
-                        <!-- Assuming you have a field for completed quizzes in your TeacherCourses model -->
-                        <span class="courses-Completed-text">
+
+                        <!-- <span class="courses-Completed-text">
                             Completed
                             <span class="text-style-1">:</span>
                             <span class="text-style-2">{{ course.completed_quizzes }}/3</span>
-                            <span class="text-style-3"></span>
-                            <div class="Courses-complete-bar-final">
+                            <span class="text-style-3"></span> -->
+                        <!-- <div class="Courses-complete-bar-final">
                                 <div class="Courses-complete-bar-1">
                                     <div class="Courses-complete-bar-2">
                                     </div>
                                 </div>
-                            </div>
-                        </span>
-                        <div class="quizs-check-details-buttom">
-                            <a href="{% url 'quizquestions' course.uuid %}" class="Check-Details">
-                                View Question
-                            </a>
-                        </div>
-
-
+                            </div> -->
+                        <!-- </span> -->
                         {% if course.upload %}
                         <div class="quizs-uploaded-details-buttom">
                             <a class="Check-Details uploaded">
@@ -139,6 +220,11 @@
                         </div>
                         {% endif %}
 
+                        <div class="quizs-check-details-buttom">
+                            <a href="{% url 'quizquestions' course.uuid %}" class="Check-Details">
+                                View Question
+                            </a>
+                        </div>
 
                         <div class="quizs-check-details-buttom">
                             <a href="{% url 'studentresults' course.uuid %}" class="Check-Details" id="upload_quiz">
@@ -150,6 +236,57 @@
                 {% endfor %}
             </div>
         </div>
+
+
+        <div class="popup-container" id="popupContainer">
+            <div class="popup-content">
+                <p class="popup-message">Are you sure you want to delete this quiz?</p>
+                <div class="popup-buttons">
+                    <button class="primary" onclick="confirmDelete()">Yes</button>
+                    <button class="secondary" onclick="closePopup()">No</button>
+                </div>
+            </div>
+        </div>        
+
     </main>
+
+    <script>
+        function confirmDelete(quiz_uuid, quiz_name) {
+            var quizUuid = quiz_uuid;
+            
+            var result = window.confirm("Are you sure you want to delete the quiz name- " + quiz_name + " ?");
+            // If user confirms, redirect to delete URL
+            if (result) {
+                window.location.href = "{% url 'delete_quiz' 9999 %}".replace('9999', quizUuid);
+            }
+        }
+
+// // Function to open the pop-up window
+// function openPopup() {
+//     document.getElementById("popupContainer").style.display = "block";
+// }
+
+// // Function to close the pop-up window
+// function closePopup() {
+//     document.getElementById("popupContainer").style.display = "none";
+// }
+
+// // Function to confirm quiz deletion
+// function confirmDelete(quiz_uuid, quiz_name) {
+//     var quizUuid = quiz_uuid;
+//     var result = window.confirm("Are you sure you want to delete the quiz '" + quiz_name + "'?");
+//     openPopup();
+
+//     if (result) {
+//         // Proceed with deletion
+//         window.location.href = "{% url 'delete_quiz' 9999 %}".replace('9999', quizUuid);
+//     } else {
+//         // Cancel deletion, close the pop-up window
+//         closePopup();
+//     }
+// }
+
+    </script>
+
 </body>
 {% endblock content %}

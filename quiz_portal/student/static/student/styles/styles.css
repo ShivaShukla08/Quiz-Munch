@@ -227,3 +227,88 @@ letter-spacing: normal;
 text-align: center;
 color: #fff;
 }
+
+
+
+
+
+
+/* popup windows */
+
+#popup-link {
+  text-decoration: none;
+  cursor: pointer;
+}
+
+#popup-window {
+  position: fixed;
+  width: 300px;
+  height: 200px;
+  background-color: #f8f9fa;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: none;
+  z-index: 1000;
+}
+
+#popup-window p {
+  margin-bottom: 20px;
+  flex-grow: 0;
+  font-family: Inter;
+  font-size: 17px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.29;
+  letter-spacing: normal;
+  text-align: center;
+  color: #000;
+}
+
+#close-button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 16px;
+  cursor: pointer;
+  flex-grow: 0;
+  font-family: Inter;
+  font-size: 17px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.29;
+  letter-spacing: normal;
+  text-align: center;
+}
+
+#Logout-button {
+  background-color: #800303;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 16px;
+  cursor: pointer;
+  flex-grow: 0;
+  font-family: Inter;
+  font-size: 17px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.29;
+  letter-spacing: normal;
+  text-align: center;
+}
+
+#close-button:hover {
+  background-color: #0056b3;
+}
+
+#Logout-button:hover {
+  background-color: #4f0202;
+}

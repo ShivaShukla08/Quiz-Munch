@@ -94,6 +94,7 @@
         background-color: #2016dc;
     }
 </style>
+
 <br><br>
 <div class="containerCourses">
     <div class="containerHeader">
@@ -101,59 +102,66 @@
             Create Quiz
         </h1>
     </div>
-    <form action="{% url 'create_quiz' %}" method="POST" enctype="multipart/form-data">
+    <form id="createQuizForm" action="{% url 'create_quiz' %}" method="POST" enctype="multipart/form-data" onsubmit="showSuccessMessage()">
         {% csrf_token %}
         <div>
             <label for="quiz-name">Quiz Name:</label>
-            <input type="text" id="quiz-name" name="quiz-name">
+            <input type="text" id="quiz-name" name="quiz-name" required>
         </div>
         <br>
         <div>
             <label for="course">Course and Batch:</label>
-            <select name="course" id="course">
+            <select name="course" id="course" required>
                 {% for detail in details %}
                 <option value="{{ detail.course_id }}-{{ detail.course_name}}-{{ detail.batch }}">{{ detail.course_id }}
                     - {{ detail.course_name }} - {{ detail.batch }}</option>
                 {% endfor %}
             </select>
         </div>
-        <br>
-        <div>
-            <label for="start-time">Start Time:</label>
-            <input type="time" id="start-time" name="start-time">
-        </div>
-        <br>
-        <div>
-            <label for="end-time">End Time:</label>
-            <input type="time" id="end-time" name="end-time">
-        </div>
 
         <br>
         <div>
             <label for="start-date">Start Date:</label>
-            <input type="date" id="start-date" name="start-date">
+            <input type="date" id="start-date" name="start-date" required>
         </div>
 
         <br>
         <div>
             <label for="end-date">End Date:</label>
-            <input type="date" id="end-date" name="end-date">
+            <input type="date" id="end-date" name="end-date" required>
+        </div>
+
+        <br>
+        <div>
+            <label for="start-time">Start Time:</label>
+            <input type="time" id="start-time" name="start-time" required>
+        </div>
+
+        <br>
+        <div>
+            <label for="end-time">End Time:</label>
+            <input type="time" id="end-time" name="end-time" required>
         </div>
 
         <br>
         <div>
             <label for="quiz-file">Quiz File:</label>
-            <input type="file" id="quiz-file" name="quiz-file">
+            <input type="file" id="quiz-file" name="quiz-file" required>
         </div>
 
         <br><br>
         <div>
-            <input type="submit" value="Submit">
+            <input type="submit" value="Submit" id="submitBtn">
         </div>
 
         <br>
     </form>
 </div>
+<script>
+    function showSuccessMessage() {
+        alert("Quiz created successfully!");
+    }
+</script>
 
 </html>
 

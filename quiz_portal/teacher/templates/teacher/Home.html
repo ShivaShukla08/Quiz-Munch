@@ -5,10 +5,57 @@
 
 <body>
     <main>
+        <style>
+            .Courses-deatails-display-container {
+                width: 288px;
+                height: 512px;
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+                align-items: center;
+                gap: 25px;
+                padding: 0;
+                margin-top: 30px;
+                margin-left: 30px;
+                margin-right: 35px;
+                margin-bottom: 35px;
+                border-radius: 10px;
+                border: solid 0.5px #00d1ff;
+                background-color: #fefefe;
+            }
+
+            .Student-Enrol-details-buttom {
+                width: 242px;
+                height: 0px;
+                margin-top: 17px;
+                margin-bottom: -18px;
+                margin-left: -17.5px;
+                align-self: stretch;
+                flex-grow: 0;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                gap: 10px;
+                padding: 23px;
+                background-color: #00d1ff;
+                border-bottom-right-radius: 5px 5px;
+                border-bottom-left-radius: 5px 5px;
+            }
+
+            .Student-Enrol-details-buttom:hover {
+                background-color: #11c2fd;
+                /* Darker color on hover */
+            }
+            .courses-check-details-buttom:hover {
+                background-color: #11c2fd;
+                /* Darker color on hover */
+            }
+        </style>
         <!----------- Quiz Progress ------->
         <br><br>
         <!---------- my courses ---------------->
-        <div class="containerCourses" style="height: {{ actualheightfcourses }}px;">  
+        <div class="containerCourses" style="height: {{ actualheightfcourses }}px;">
             <div class="containerHeader">
                 <h1 class="Quiz-Progress">
                     Dashboard
@@ -27,21 +74,22 @@
 
             <div class="layout">
                 {% for course in details %}
-                <div class="Courses-All-display-container">
+                <div class="Courses-deatails-display-container">
+
                     <div class="imagecoursebox">
-                        <!-- Assuming you have a field for image URL in your TeacherCourses model -->
-                        <!-- <img class="subjectImage" src="https://raw.githubusercontent.com/kunaladarsh/QuizMunch-Frontend/main/Quiz%20Munch/Image/course_name_1.png"> -->
-                        
                         <img class="subjectImage" src="{% static 'student/images/'%}{{ course.course_id }}.png">
-                       
                     </div>
                     <div class="courses-year">
                         <span class="courses-name">
                             {{ course.course_name }}
                         </span>
+
                         <!-- Assuming you have an Instructor field in your TeacherCourses model -->
                         <span class="Instructor-name">
-                            Instructor:  {{ teacher_name }}
+                            Instructor: {{ teacher_name }}
+                        </span>
+                        <span class="Total-Quizes">
+                            Semester: <b>{{ course.semester }}</b>
                         </span>
                         <span class="Instructor-name">
                             <b>Stream: </b>
@@ -63,19 +111,21 @@
                             <span class="text-style-1">:</span>
                             <span class="text-style-2">{{ course.total_quiz }}</span>
                             <span class="text-style-3"></span>
-                            <div class="Courses-complete-bar-final">
-                                <div class="Courses-complete-bar-1">
-                                    <div class="Courses-complete-bar-2">
-                                    </div>
-                                </div>
-                            </div>
                         </span>
+
+                        <div class="Student-Enrol-details-buttom">
+                            <a href="{% url 'student_enrol' course.course_id course.batch course.semester %}"
+                                class="Check-Details">
+                                Student Enrol
+                            </a>
+                        </div>
+
                         <div class="courses-check-details-buttom">
-                            <a href="{% url 'course_detail' course.course_id %}" class="Check-Details">
+                            <a href="{% url 'course_detail' course.course_id  %}" class="Check-Details">
                                 Check Details
                             </a>
-                            
                         </div>
+
                     </div>
                 </div>
                 {% endfor %}

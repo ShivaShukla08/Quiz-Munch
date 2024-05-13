@@ -80,8 +80,41 @@ class Feedback(models.Model):
     def __str__(self):
         return self.name
 
+class QuizDetailsResponse(models.Model):
+    uuid = models.UUIDField(unique=False)
+    sap_id = models.CharField(max_length=25, unique=False)
+    question_number = models.IntegerField()
+    answer_key = models.CharField(max_length=100)
+    answer_marked = models.CharField(max_length=100)
+    your_time_taken = models.CharField(max_length=10)  
+
+    def __str__(self):
+        return f"Question Number: {self.question_number}"
+
+class CompletionCertificates(models.Model):
+    uuid = models.UUIDField(unique=False)
+    sap_id = models.CharField(max_length=20)
+    certificate_id = models.UUIDField(primary_key=True)  
+    correctMarks = models.IntegerField()
+    TotalMarks = models.IntegerField()
+    completion_date = models.DateField()
+
+    def __str__(self):
+        return f"certificated id: {self.certificate_id}"
+
 
 # .≥≥≥≥≥≥≥≥≥≥≥≥≥≥Below code is of no use≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥≥.
+class CompletionCertificate(models.Model):
+    uuid = models.UUIDField(unique=False)
+    certificated_id = models.UUIDField(unique=True)
+    sap_id = models.CharField(max_length=25, unique=False)
+    correctMarks = models.CharField(max_length=100)
+    TotalMarks = models.CharField(max_length=100)
+    completion_date = models.DateField()
+
+    def __str__(self):
+        return f"certificated id: {self.certificated_id}"
+
 class CoreStream(models.Model):
     course_id = models.IntegerField(primary_key=True)
     course_name = models.CharField(max_length=50)

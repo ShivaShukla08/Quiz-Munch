@@ -19,14 +19,14 @@
                     <div class="progress1">
                         <div class="progressQuizzesComplete"></div>
                         <span class="Pending-Quizzes">
-                            Completed Quizzes - 3
+                            Completed Quizzes - {{completed_Quizzes}}
                         </span>
                     </div>
 
                     <div class="progress1">
                         <div class="progressQuizzesPending"></div>
                         <span class="Pending-Quizzes">
-                            Pending Quizzes - 7
+                            Pending Quizzes - {{pendingquiz}}
                         </span>
                     </div>
                 </div>
@@ -42,12 +42,12 @@
                     function drawChart() {
                       var data = google.visualization.arrayToDataTable([
                       ['Task', 'Quiz Progress'],
-                      ['Completed', 3],
-                      ['Pending', 7]
+                      ['Completed',  {{completed_Quizzes}} ],
+                      ['Pending', {{pendingquiz}}]
                     ]);
                     
                       // Optional; add a title and set the width and height of the chart
-                      var options = {'width':400, 'height':240};
+                      var options = {'width':365, 'height':240};
                     
                       // Display the chart inside the <div> element with id="piechart"
                       var chart = new google.visualization.PieChart(document.getElementById('piechart'));
@@ -64,46 +64,19 @@
                         Upcoming Quizzes Due
                     </h1>
                 </div>
+                
+                {% for course in upcomingQuizzesDetails %}
                 <div class="FrContainerborder1">
                     <span class="Course---Date--">
                         Course -
                         Date -
                     </span>
                     <span class="upcomingquizeCource">
-                        Quiz on Data Structures<br>
-                        Feb 26
+                        Quiz on {{course.course_name}}<br>
+                        {{course.start_date}}
                     </span>
                 </div>
-                <div class="FrContainerborder1">
-                    <span class="Course---Date--">
-                        Course -
-                        Date -
-                    </span>
-                    <span class="upcomingquizeCource">
-                        Quiz on AIML<br>
-                        Feb 28
-                    </span>
-                </div>
-                <div class="FrContainerborder1">
-                    <span class="Course---Date--">
-                        Course -
-                        Date -
-                    </span>
-                    <span class="upcomingquizeCource">
-                        Quiz on Operating System<br>
-                        March 05
-                    </span>
-                </div>
-                <div class="FrContainerborder1">
-                    <span class="Course---Date--">
-                        Course -
-                        Date -
-                    </span>
-                    <span class="upcomingquizeCource">
-                        Quiz on DBMS <br>
-                        March 09
-                    </span>
-                </div>
+                {% endfor %}
             </div>
         </div>
         <br>
@@ -166,11 +139,11 @@
                         <span class="courses-Completed-text">
                             Completed
                             <span class="text-style-1">:</span>
-                            <span class="text-style-2">0/{{course.total_quiz}}</span>
+                            <span class="text-style-2">{{course.CompletedQuiz}}/{{course.total_quiz}}</span>
                             <span class="text-style-3"></span>
                             <div class="Courses-complete-bar-final">   
                                 <div class="Courses-complete-bar-1">                   
-                                    <div class="Courses-complete-bar-2" style="width: 58.4615%;">
+                                    <div class="Courses-complete-bar-2" style="width: {{course.barCourses}}%;">
                                     </div>
                                 </div>
                             </div>

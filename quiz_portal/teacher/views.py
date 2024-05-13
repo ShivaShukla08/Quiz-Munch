@@ -12,15 +12,12 @@ import uuid
 import pytz  # If you need to work with time zones
 from datetime import datetime
 from django.contrib import messages
-from student.models import response_table, StudentsProfile
-from django.http import HttpResponse
+from student.models import response_table, StudentsProfile, CoreStreams
+from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
 from openpyxl import Workbook
+from django.contrib import messages
 from openpyxl.styles import Font, Alignment
 
-# Create your views here.
-@login_required
-def profiles(request):
-    return render(request, 'teacher/profile.html')
 
 def teacher_login(request):
     if request.method == "POST":
@@ -49,6 +46,7 @@ def logoutuser(request):
     messages.info(request,'User was logged out')
     return redirect('teacher_login')
 
+
 @login_required
 def home(request):
     user_id = request.user.username
@@ -61,25 +59,31 @@ def home(request):
     for course in details:
         Quiz = Quiz_details.objects.filter(teacher_id = course['tid'], course_id = course['course_id'], batch= course['batch']).values()
         course['total_quiz'] = Quiz.count()
+        sem = CoreStreams.objects.filter(course_id = course['course_id']).values('semester').first()
+        if sem:
+            course['semester'] = sem['semester']
+        else:
+            course['semester'] = 'NA'
 
     # set myCouses hight in run time
     size =  details.count()
-    actualheightfcourses = 720
+    actualheightfcourses = 760
     if(size > 3):   
-     actualheightfcourses += (510 * (math.ceil(size/3)-1))
+     actualheightfcourses += (600 * (math.ceil(size/3)-1))
      
     return render(request, 'teacher/home.html', {'details': details, 'actualheightfcourses':actualheightfcourses, 'teacher_name':teacher_name})
 
-from django.contrib import messages
 
+@login_required
 def course_detail(request, course_id):
     tid = request.user.username
     details = Quiz_details.objects.filter(course_id=course_id, teacher_id=tid)
-    
+    print(details)
     size =  details.count()
-    actualheightfcourses = 700
+    actualheightfcourses = 650
+    
     if(size > 3):   
-     actualheightfcourses += (600 * (math.ceil(size/3)-1))
+     actualheightfcourses += (580 * (math.ceil(size/3)-1))
     showmessage = False
     if(size == 0):
         actualheightfcourses = 400
@@ -99,9 +103,29 @@ def course_detail(request, course_id):
             else:
                 messages.warning(request, 'Quiz has already been uploaded.')
 
-
     return render(request, 'teacher/course_detail.html', {'details': details, 'actualheightfcourses':actualheightfcourses, 'showmessage':showmessage})
 
+
+@login_required
+def student_enrol(request, course_id, batch, semester):
+    tid = request.user.username
+    
+    try:
+        semester = int(semester)
+        # Check if batch is not assigned
+        if not batch:
+            raise ValueError
+    except ValueError:
+        # Handle the error
+        return HttpResponse("Your are not assigned any Batch or semester.")
+
+    Studentdetails = StudentsProfile.objects.filter(semester=semester, batch=batch).values()
+    print(Studentdetails)
+    print("hello")
+    return render(request, 'teacher/student_enrol_details.html', {'Studentdetails': Studentdetails})
+
+
+@login_required
 def upload_quiz(request, course_uuid):
     try:
         quiz = Quiz_details.objects.get(uuid=course_uuid)
@@ -143,8 +167,6 @@ def create_quiz(request):
         backtracking = False
         upload = False
         batch = words[2]
-
-
 
         quiz_detail = Quiz_details(
             teacher_id=tid,
@@ -232,16 +254,74 @@ def create_quiz(request):
     details = TeacherCourse.objects.filter(tid=user_id)
     return render(request, 'teacher/create_quiz.html', {'details': details})
 
+@login_required
 def quizquestions(request,quiz_uuid):
     questions = Quiz_Question_detail.objects.filter(uuid=quiz_uuid)
-    # print(questions)
-    return render(request, 'teacher/quiz_display.html', {'questions': questions})
+    return render(request, 'teacher/quiz_display.html', {'questions': questions, 'quiz_uuid':quiz_uuid})
 
 
+@login_required
+def question_popup(request, questionNumber, quiz_uuid):
+    questions = Quiz_Question_detail.objects.filter(uuid=quiz_uuid, question_number= questionNumber)
+    return render(request, 'teacher/question_popup.html', {'questions': questions, 'uuid':quiz_uuid})
+
+
+@login_required
+def saveChangesQuestion(request, quiz_uuid):
+   
+    if request.method == 'POST':
+        question_number = request.POST.get('question_number')
+        question_description = request.POST.get('question-description')
+        option1_description = request.POST.get('option1-description')
+        option2_description = request.POST.get('option2-description')
+        option3_description = request.POST.get('option3-description')
+        option4_description = request.POST.get('option4-description')
+        correct_answer = request.POST.get('correct_answer')
+
+        # Update the QuizQuestion in the database
+        try:
+            quiz_question = Quiz_Question_detail.objects.get(uuid = quiz_uuid, question_number=question_number)
+            if quiz_question:
+                quiz_question.question_description = question_description
+                quiz_question.option1 = option1_description
+                quiz_question.option2 = option2_description
+                quiz_question.option3 = option3_description
+                quiz_question.option4 = option4_description
+                quiz_question.correct_answer = correct_answer
+ 
+                quiz_question.save()
+                return HttpResponse("<h2>Question Updated Successfully</h2>")
+            else:
+                return HttpResponse("<h2>Question Not Found</h2>")
+        except Exception as e:
+            return HttpResponseNotFound()
+        
+    # Handle cases like GET requests
+    return HttpResponseNotFound()
+
+
+@login_required
+def delete_quiz(request, quiz_uuid):
+    responsedata = response_table.objects.filter(uuid = quiz_uuid)
+    QuizQuestiondata = Quiz_Question_detail.objects.filter(uuid = quiz_uuid)
+    Quizdetailsdata = Quiz_details.objects.filter(uuid = quiz_uuid)
+    print('responsedata', responsedata)
+    print('QuizQuestiondata', QuizQuestiondata)
+    print('Quizdetailsdata', Quizdetailsdata)
+
+    # Delete data from each table
+    responsedata.delete()
+    QuizQuestiondata.delete()
+    Quizdetailsdata.delete()
+
+    return HttpResponse("quiz deleted suceesfullly")
+
+@login_required
 def teacherprofile(request):
     user_id = request.user.username
     profile_details = TeacherProfile.objects.filter(id=user_id).values()
     return render(request, 'teacher/profile.html', {"profile_details": profile_details})
+
 
 @login_required
 def studentresults(request, quiz_uuid):

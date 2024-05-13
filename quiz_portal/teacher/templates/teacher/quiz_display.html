@@ -2,25 +2,153 @@
 
 {% block content %}
 
-    {% for question in questions %}
-        <div class="question">
-            <h3>Question {{ question.question_number }}</h3>
-            <p>{{ question.question_description }}</p>
-            <input type="hidden" name="question{{ forloop.counter }}_uuid" value="{{ question.uuid }}">
-            <input type="radio" id="option1_{{ forloop.counter }}" name="answer{{ forloop.counter }}" value="{{ question.option1 }}">
-            <label for="option1_{{ forloop.counter }}">{{ question.option1 }}</label><br>
-            <input type="radio" id="option2_{{ forloop.counter }}" name="answer{{ forloop.counter }}" value="{{ question.option2 }}">
-            <label for="option2_{{ forloop.counter }}">{{ question.option2 }}</label><br>
-            {% if question.option3 %}
-                <input type="radio" id="option3_{{ forloop.counter }}" name="answer{{ forloop.counter }}" value="{{ question.option3 }}">
-                <label for="option3_{{ forloop.counter }}">{{ question.option3 }}</label><br>
-            {% endif %}
-            {% if question.option4 %}
-                <input type="radio" id="option4_{{ forloop.counter }}" name="answer{{ forloop.counter }}" value="{{ question.option4 }}">
-                <label for="option4_{{ forloop.counter }}">{{ question.option4 }}</label><br>
-            {% endif %}
-        </div>
-    {% endfor %}
+<br><br>
+<main>
+    <style>
+        #popup-link {
+            text-decoration: none;
+        }
+        #popup-window1 {
+            position: fixed;
+            width: 300px;
+            height: 200px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            z-index: 1000;
+        }
 
+        #popup-window1 {
+            margin-bottom: 20px;
+            flex-grow: 0;
+            font-family: Inter;
+            font-size: 17px;
+            font-weight: normal;
+            font-stretch: normal;
+            font-style: normal;
+            line-height: 1.29;
+            letter-spacing: normal;
+            text-align: center;
+            color: #000;
+        }
+
+        #close-button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 16px;
+            cursor: pointer;
+            flex-grow: 0;
+            font-family: Inter;
+            font-size: 17px;
+            font-weight: normal;
+            font-stretch: normal;
+            font-style: normal;
+            line-height: 1.29;
+            letter-spacing: normal;
+            text-align: center;
+        }
+
+        #Logout-button {
+            background-color: #800303;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 16px;
+            cursor: pointer;
+            flex-grow: 0;
+            font-family: Inter;
+            font-size: 17px;
+            font-weight: normal;
+            font-stretch: normal;
+            font-style: normal;
+            line-height: 1.29;
+            letter-spacing: normal;
+            text-align: center;
+        }
+
+        #close-button:hover {
+            background-color: #0056b3;
+        }
+
+        #Logout-button:hover {
+            background-color: #4f0202;
+        }
+
+    </style>
+    <button class="fullscreen-btn" onclick="openFullscreen();">Open Fullscreen</button>
+    <div class="quiz-container">
+        <h1>Multiple Choice Quiz</h1>
+        {% for question in questions %}
+        <div class="question">
+            <p>{{ question.question_number }}. {{ question.question_description }}</p>
+            <!-- <button class="edit-question-btn" id="popup-link" onclick="openEditPopup('{{ question.question_number }}')">Edit
+                Question</button> -->
+
+            <button class="edit-question-btn" id="popup-link"
+                onclick="openEditPopup('{{ question.question_number }}', '{{ quiz_uuid }}')">Edit Question</button>
+
+            <div class="answers">
+                <label>
+                    <input type="radio" name="q{{ question.question_number }}" value="{{ question.option1 }}">
+                    {{ question.option1 }}
+                </label>
+                <label>
+                    <input type="radio" name="q{{ question.question_number }}" value="{{ question.option2 }}">
+                    {{ question.option2 }}
+                </label>
+                {% if question.option3 %}
+                <label>
+                    <input type="radio" name="q{{ question.question_number }}" value="{{ question.option3 }}">
+                    {{ question.option3 }}
+                </label>
+                {% endif %}
+                {% if question.option4 %}
+                <label>
+                    <input type="radio" name="q{{ question.question_number }}" value="{{ question.option4 }}">
+                    {{ question.option4 }}
+                </label>
+                {% endif %}
+            </div>
+        </div>
+        <br>
+
+        {% endfor %}
+    </div>
+</main>
+
+<script>
+     var elem = document.documentElement;
+    function openFullscreen() {
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen();
+        } else if (elem.webkitRequestFullscreen) { /* Safari */
+            elem.webkitRequestFullscreen();
+        } else if (elem.msRequestFullscreen) { /* IE11 */
+            elem.msRequestFullscreen();
+        }
+    }
     
+    function openEditPopup(questionNumber) {
+        var quizUuid = "{{ quiz_uuid }}";
+        var qno = questionNumber;
+        var popupUrl = "{% url 'question_popup' 9999 9999 %}".replace('9999', questionNumber).replace('9999', quizUuid);
+
+        var width = 700;
+        var height = 450;
+        var left = (screen.width - width) / 2;
+        var top = (screen.height - height) / 2;
+        // Open the popup window
+        window.open(popupUrl, "EditWindow", "width=" + width + ",height=" + height + ",left=" + left + ",top=" + top + ",scrollbars=yes");
+    }
+
+</script>
+
+
 {% endblock content %}
