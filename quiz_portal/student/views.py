@@ -7,6 +7,7 @@ from .models import StudentsProfile, CoreStreams, response_table, Feedback, Quiz
 from . import views                                                   
 import math
 import uuid
+from django.urls import reverse
 from django.http import Http404
 from django.http import JsonResponse
 from django.utils import timezone
@@ -108,9 +109,7 @@ def home(request):
             course['barCourses'] = (300 * percentage)/100
             course['total_quiz'] = Quizdetails.count()
             course['CompletedQuiz'] = CompletedQuiz
-    
-    print(upcomingQuizzesDetails)
-                
+                    
     return render(request, 'student/home.html', {"course_details": course_details, "actualheightfcourses": actualheightfcourses, 'completed_Quizzes': completed_Quizzes, 'pendingquiz': pendingquiz, 'upcomingQuizzesDetails':upcomingQuizzesDetails})
 
 
@@ -121,7 +120,7 @@ def profile(request):
     return render(request, 'student/profile.html', {"profile_details": profile_details})
 
 
-# # convert total time of quiz
+# convert total time of quiz
 def convert_total_time(start_time_str, end_time_str):
       # Parse start time string
       start_hour = int(start_time_str[:2])
@@ -146,14 +145,13 @@ def convert_total_time(start_time_str, end_time_str):
           minutes_diff += 60
           hours_diff -= 1
 
-
       totaltime = hours_diff * 60 + minutes_diff + (int)(seconds_diff/60)
       return totaltime
 
 
 @login_required
 def quizdisplay(request, quiz_uuid):
-
+    user_id = request.user.username
     currentTime = datetime.datetime.now().time()
     currentDate = datetime.date.today()
 
@@ -162,13 +160,9 @@ def quizdisplay(request, quiz_uuid):
     endtime = quizdeatils.end_time
     startdate = quizdeatils.start_date
     enddate = quizdeatils.end_date
-    user_id = request.user.username
-
-    print(currentTime.strftime("%H:%M:%S"))
 
     caltime =  convert_total_time(currentTime.strftime("%H:%M:%S"), endtime.strftime("%H:%M:%S"))
     timer = (int)(caltime)
-    print(timer)
  
     quizResponseDeatils = response_table.objects.filter(uuid=quiz_uuid, sap_id=user_id).values()
 
@@ -232,7 +226,9 @@ def studentCourseDetail(request, course_id):
             quiz['QuizNotStarted'] = QuizNotStarted
             
             details.append(quiz)
-
+    else:
+        raise Http404("The requested URL was rejected")
+    
     # set myquizes hight in run time
     size = 0
     if details:
@@ -249,8 +245,6 @@ def studentCourseDetail(request, course_id):
 
     return render(request, 'student/Quiz_detail.html', {'details': details, "actualheightfcourses": actualheightfcourses, "showmessage":showmessage})
 
-from django.urls import reverse
-
  
 @login_required
 def submit_quiz(request,quiz_uuid):
@@ -261,9 +255,8 @@ def submit_quiz(request,quiz_uuid):
     quizresult_url = reverse('Quizresult', kwargs={'quiz_uuid': quiz_uuid})
 
     if quizResponseDeatils.count() > 0:
-        
+
         return redirect(quizresult_url)
-        # return HttpResponse("You are already submitted quiz")
     
     if request.method == 'POST':
         total_correct = 0
@@ -292,6 +285,7 @@ def submit_quiz(request,quiz_uuid):
             answer_marked = selected_option[7],
             your_time_taken = "0.50"
             )
+
             quiz_response.save()
 
         result = response_table(uuid=quiz_uuid,sap_id=user_id,total_correct=total_correct, total_incorrect=total_incorrect)
@@ -305,19 +299,15 @@ def submit_quiz(request,quiz_uuid):
         TotalMarks = total_correct + total_incorrect,
         completion_date = datetime.date.today()
         )
-        print(certificated_details)
+
         certificated_details.save()
         
         return redirect(quizresult_url)
-    
-        # return redirect('Quizresult')
-    
     else:
-
-        return JsonResponse({'error': 'This view only accepts POST requests'}, status=405)
-
+        raise Http404("Invalid URL")
 
 
+# functions return the informations of the Quiz
 def quizdisplaycheck(quiz_uuid, user_id):
     currentTime = datetime.datetime.now().time()
     currentDate = datetime.date.today()
@@ -355,36 +345,63 @@ def quizdisplaycheck(quiz_uuid, user_id):
         return "QuizNotStarted"
 
 
+# check result of quiz and details analysis of quiz
 @login_required
 def Quizresult(request, quiz_uuid):
     user_id = request.user.username
-    certificated_id = ""
-    certificated_details = CompletionCertificates.objects.filter(uuid = quiz_uuid, sap_id = user_id).first()
-    if certificated_details:
-         certificated_id =certificated_details.certificate_id 
-    
-    result = response_table.objects.filter(uuid=quiz_uuid, sap_id = user_id).first()
-    DetaisAnalysis = QuizDetailsResponse.objects.filter(uuid=quiz_uuid, sap_id = user_id).values()
+    try:
+        certificated_details = CompletionCertificates.objects.filter(uuid = quiz_uuid, sap_id = user_id).first()
+        if certificated_details is None:
+            raise Http404("Page not found")
 
-    return render(request, 'student/Quiz_result.html', {'result' : result, 'DetaisAnalysis':DetaisAnalysis, 'certificated_id': certificated_id})
+        certificated_id =certificated_details.certificate_id 
+        result = response_table.objects.filter(uuid=quiz_uuid, sap_id = user_id).first()
+        DetaisAnalysis = QuizDetailsResponse.objects.filter(uuid=quiz_uuid, sap_id = user_id).values()
 
+        return render(request, 'student/Quiz_result.html', {'result' : result, 'DetaisAnalysis':DetaisAnalysis, 'certificated_id': certificated_id, 'quiz_uuid':quiz_uuid})
+    except Exception:
+        raise Http404("Page not found")
+
+
+#view the each quiz questions if you are attempted the quizzes
+@login_required
+def ViewQuizQues(request, questionNumber, quiz_uuid):
+    user_id = request.user.username
+    try:
+        quizResponseDeatils = response_table.objects.filter(uuid=quiz_uuid, sap_id=user_id).values()
+
+        if quizResponseDeatils.count() > 0:
+            questions = Quiz_Question_detail.objects.filter(uuid=quiz_uuid, question_number= questionNumber)
+            return render(request, 'student/viewQuizQues.html', {'questions': questions})
+        else:
+            raise Http404("Page not found")
+    except Exception:
+        raise Http404("Page not found")
+
+
+# get certificate issuse of Quiz
 def quizCertificated(request, certificated_id):
-    certificated_details = CompletionCertificates.objects.filter(certificate_id = certificated_id).first()
-    sap_id = certificated_details.sap_id
-    student = StudentsProfile.objects.filter(user_id=sap_id).first()
-    certificated_details.student_name = student.name 
+    try:
+        certificated_details = CompletionCertificates.objects.filter(certificate_id = certificated_id).first()
+        sap_id = certificated_details.sap_id
+        student = StudentsProfile.objects.filter(user_id=sap_id).first()
+        certificated_details.student_name = student.name 
 
-    details = Quiz_details.objects.filter(uuid = certificated_details.uuid).first()
-    course = TeacherCourse.objects.filter(tid = details.teacher_id, course_id = details.course_id, batch = details.batch).first()
-    certificated_details.course_name = course.course_name 
+        details = Quiz_details.objects.filter(uuid = certificated_details.uuid).first()
+        course = TeacherCourse.objects.filter(tid = details.teacher_id, course_id = details.course_id, batch = details.batch).first()
+        certificated_details.course_name = course.course_name 
 
-    certificated_details.percentage = (certificated_details.correctMarks) * 100 / (certificated_details.TotalMarks)
-    
-    print(course)
-    # print(Quiz_details)
-    return render(request, 'student/CertificateCompletion.html', {'certificated_details': certificated_details})
+        percentage = (certificated_details.correctMarks) * 100 / (certificated_details.TotalMarks)
+
+        certificated_details.percentage = round(percentage, 2)
+
+        return render(request, 'student/CertificateCompletion.html', {'certificated_details': certificated_details})
+
+    except Exception:
+        raise Http404("Invalid URL: Certificate not found")
 
 
+#Get notifications of student of all enrol courses
 @login_required
 def notifications(request):
     user_id = request.user.username

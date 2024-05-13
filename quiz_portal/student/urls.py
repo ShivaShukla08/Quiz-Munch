@@ -14,8 +14,8 @@ urlpatterns = [
     path('quizdisplay/<str:quiz_uuid>/', views.quizdisplay, name='quizdisplay'),
     path('submit_quiz/<str:quiz_uuid>/', views.submit_quiz, name='submit_quiz'),
     path('Quizresult/<str:quiz_uuid>/', views.Quizresult, name="Quizresult"),
+    path('ViewQuizQues/<int:questionNumber>/<str:quiz_uuid>/', views.ViewQuizQues, name='ViewQuizQues'),
     path('verify.certificate/<str:certificated_id>/', views.quizCertificated, name="quizCertificated"),
-
     path('submit-feedback/', views.submit_feedback, name='submit_feedback'),
 
 ]

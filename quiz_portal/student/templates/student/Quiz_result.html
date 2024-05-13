@@ -167,7 +167,7 @@
     color: #445a7f;
   }
 
-  .Certificate-button{
+  .Certificate-button {
     background-image: linear-gradient(to right, #00d1ff -3%, #00ffe0 152%);
     color: #fff;
     border: none;
@@ -187,8 +187,10 @@
     margin-top: 10px;
     margin-bottom: 10px;
     width: 200px;
- 
+
   }
+
+
 </style>
 
 <main>
@@ -225,10 +227,11 @@
             View Detais Quiz Analysis
           </a>
 
-          <a href="{% url 'quizCertificated' certificated_id %}"> <button class="Certificate-button">Get Your Certificate            
-         </button></a>
+          <a href="{% url 'quizCertificated' certificated_id %}"> <button class="Certificate-button">Get Your
+              Certificate
+            </button></a>
 
-          
+
         </span>
       </div>
 
@@ -264,8 +267,6 @@
 
       <button id="close-button1">Close Analysis</button>
 
-      
-
       <div class="layout">
         <table>
           <thead>
@@ -280,16 +281,21 @@
           </thead>
           <tbody>
             {% for details in DetaisAnalysis %}
-            <tr {% if details.answer_key != details.answer_marked %} style="background-color: rgb(235, 107, 107);" {% endif %}>
+            <tr 
+            {% if details.answer_key != details.answer_marked %} style="background-color: rgb(235, 107, 107);" {% endif %}>
               <td> Q.{{details.question_number}}</td>
               <td> {{details.answer_key}} </td>
               <td> {{details.answer_marked}} </td>
               <td> {{details.your_time_taken}} </td>
               <td> 1.00 </td>
-              <td> <button class="view">
-                  <span class="viewtext">view
-                  </span>
-                </button></td>
+              <td>
+                
+                  <button class="view" onclick="openViewPopupQues('{{ details.question_number }}', '{{ quiz_uuid }}')">
+                    <span class="viewtext">view
+                    </span>
+                  </button>
+                
+              </td>
             </tr>
             {% endfor %}
 
@@ -297,7 +303,6 @@
         </table>
         <br>
       </div>
-
     </div>
   </div>
 
@@ -315,6 +320,22 @@
   closeButton1.addEventListener("click", function () {
     popupWindow1.style.display = "none";
   });
+
+
+
+  function openViewPopupQues(questionNumber) {
+    var quizUuid = "{{ quiz_uuid }}";
+    var qno = questionNumber;
+    var popupUrl = "{% url 'ViewQuizQues' 9999 9999 %}".replace('9999', questionNumber).replace('9999', quizUuid);
+
+    var width = 700;
+    var height = 450;
+    var left = (screen.width - width) / 2;
+    var top = (screen.height - height) / 2;
+    // Open the popup window
+    window.open(popupUrl, "EditWindow", "width=" + width + ",height=" + height + ",left=" + left + ",top=" + top + ",scrollbars=yes");
+  }
+
 </script>
 {% include 'student/footer.html' %}
 {% endblock content %}
