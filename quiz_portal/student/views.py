@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.contrib.auth.models import User
 from django.shortcuts import render,redirect
 from django.contrib.auth import login, authenticate, logout
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseNotFound
 from .models import StudentsProfile, CoreStreams, response_table, Feedback, QuizDetailsResponse, CompletionCertificates
 from . import views                                                   
 import math
@@ -20,6 +20,15 @@ from django.views.generic.detail import DetailView
 from teacher.models import TeacherCourse, TeacherProfile, Quiz_details,Quiz_Question_detail
 
 # Create your views here.
+#check valid user
+def check_id(username):
+    id = str(username)
+     
+    if id[0] == '5':
+        return True
+    else:
+        return False
+    
 def user_login(request):
     if request.method == "POST":
         username = request.POST['username']
@@ -28,15 +37,15 @@ def user_login(request):
         try:
             user = User.objects.get(username=username)
         except:
-            print('Username does not exist')
+            return HttpResponse('<h1>Username does not exist<h1>')
 
         user = authenticate(request,username=username,password=password)
-
-        if user is not None:
+        print(check_id(username))
+        if user is not None and check_id(username):
             login(request, user)
             return redirect('home')
         else:
-            print('Username or password is incorrect')
+            return HttpResponse('<h1>Username or password is incorrect</h1>')
     page = 'login'
     context = {'page':page}
     return render(request,'student/login.html',context)
@@ -50,72 +59,81 @@ def userlogout(request):
 @login_required
 def home(request):
     user_id = request.user.username
-
-    user_details = StudentsProfile.objects.filter(user_id=user_id).first()
-    sem = user_details.semester
-    stream = user_details.stream
-    batch = user_details.batch
- 
-    course_details = CoreStreams.objects.filter(semester=sem, stream=stream).values()
+    if not check_id(user_id):
+        raise Http404("Invalid URL")
     
-    size =  course_details.count()
-    actualheightfcourses = 720
-    if(size > 3):   
-      actualheightfcourses += (510 * (math.ceil(size/3)-1))
-
-    completed_Quizzes = 0
-    pendingquiz = 0
-      
-    upcomingQuizzesDetails = []
-    for course in course_details:
-        teacher_details = TeacherCourse.objects.filter(course_id=course['course_id'], batch= batch).first()
+    try:
+        user_details = StudentsProfile.objects.filter(user_id=user_id).first()
+        sem = user_details.semester
+        stream = user_details.stream
+        batch = user_details.batch
+    
+        course_details = CoreStreams.objects.filter(semester=sem, stream=stream).values()
         
-        if teacher_details:
-            teacher_name = TeacherProfile.objects.filter(id = teacher_details.teacher_id).first()
-            course['teachername'] = teacher_name.name
-        else:
-            course['teachername'] = 'Teacher not assigned'
-      
-        if teacher_details:
-            course_id=course['course_id']
-            Quizdetails = Quiz_details.objects.filter(teacher_id = teacher_details.teacher_id, course_id = course_id, batch= batch).values()
-            # print(Quizdetails)
+        size =  course_details.count()
+        actualheightfcourses = 720
+        if(size > 3):   
+            actualheightfcourses += (510 * (math.ceil(size/3)-1))
 
-            CompletedQuiz = 0
-            pending_quiz = 0
+        completed_Quizzes = 0
+        pendingquiz = 0
+        
+        upcomingQuizzesDetails = []
+        for course in course_details:
+            teacher_details = TeacherCourse.objects.filter(course_id=course['course_id'], batch= batch).first()
             
-            for Quiz in Quizdetails:
-                # get upcoming Quiz information
-                currentDate = datetime.date.today()
-                startdate = Quiz['start_date']
-                if currentDate <= startdate and len(upcomingQuizzesDetails) < 4:
-                    course_name = CoreStreams.objects.filter(course_id = course_id).values('course_name').first()
-                    Quiz['course_name'] = course_name['course_name']
-                    upcomingQuizzesDetails.append(Quiz)
+            if teacher_details:
+                teacher_name = TeacherProfile.objects.filter(id = teacher_details.teacher_id).first()
+                course['teachername'] = teacher_name.name
+            else:
+                course['teachername'] = 'Teacher not assigned'
+        
+            if teacher_details:
+                course_id=course['course_id']
+                Quizdetails = Quiz_details.objects.filter(teacher_id = teacher_details.teacher_id, course_id = course_id, batch= batch).values()
 
-                # get completed Quiz , pending Quiz and Quiz bar percentage
-                quizResponseDeatils = response_table.objects.filter(uuid = Quiz['uuid'], sap_id=user_id).values()
-                if quizResponseDeatils:
-                    CompletedQuiz += 1
-                    completed_Quizzes += 1
-                else:
-                    pendingquiz += 1
-                    pending_quiz += 1
+                CompletedQuiz = 0
+                pending_quiz = 0
+                
+                for Quiz in Quizdetails:
+                    # get upcoming Quiz information
+                    currentDate = datetime.date.today()
+                    startdate = Quiz['start_date']
+                    if currentDate <= startdate and len(upcomingQuizzesDetails) < 4:
+                        course_name = CoreStreams.objects.filter(course_id = course_id).values('course_name').first()
+                        Quiz['course_name'] = course_name['course_name']
+                        upcomingQuizzesDetails.append(Quiz)
 
-            percentage = 0
-            if (CompletedQuiz+ pending_quiz != 0):
-                percentage = (CompletedQuiz / (CompletedQuiz+ pending_quiz)) * 100
+                    # get completed Quiz , pending Quiz and Quiz bar percentage
+                    quizResponseDeatils = response_table.objects.filter(uuid = Quiz['uuid'], sap_id=user_id).values()
+                    if quizResponseDeatils:
+                        CompletedQuiz += 1
+                        completed_Quizzes += 1
+                    else:
+                        pendingquiz += 1
+                        pending_quiz += 1
 
-            course['barCourses'] = (300 * percentage)/100
-            course['total_quiz'] = Quizdetails.count()
-            course['CompletedQuiz'] = CompletedQuiz
-                    
-    return render(request, 'student/home.html', {"course_details": course_details, "actualheightfcourses": actualheightfcourses, 'completed_Quizzes': completed_Quizzes, 'pendingquiz': pendingquiz, 'upcomingQuizzesDetails':upcomingQuizzesDetails})
+                percentage = 0
+                if (CompletedQuiz+ pending_quiz != 0):
+                    percentage = (CompletedQuiz / (CompletedQuiz+ pending_quiz)) * 100
+
+                course['barCourses'] = (300 * percentage)/100
+                course['total_quiz'] = Quizdetails.count()
+                course['CompletedQuiz'] = CompletedQuiz
+                        
+        return render(request, 'student/home.html', {"course_details": course_details, "actualheightfcourses": actualheightfcourses, 'completed_Quizzes': completed_Quizzes, 'pendingquiz': pendingquiz, 'upcomingQuizzesDetails':upcomingQuizzesDetails})
+    
+    except Exception:
+        raise Http404("Invalid URL")
 
 
+# profile page
 @login_required
 def profile(request):
     user_id = request.user.username
+    if not check_id(user_id):
+        raise Http404("Invalid URL")
+
     profile_details = StudentsProfile.objects.filter(user_id=user_id).values()
     return render(request, 'student/profile.html', {"profile_details": profile_details})
 
@@ -148,114 +166,161 @@ def convert_total_time(start_time_str, end_time_str):
       totaltime = hours_diff * 60 + minutes_diff + (int)(seconds_diff/60)
       return totaltime
 
+#API call in student App --> check user are acceses or not
+def checkValidRequest(quiz_uuid, user_id):
+    try:
+        quizdeatils = Quiz_details.objects.filter(uuid=quiz_uuid).first()
+        course_id = quizdeatils.course_id
+        batch = quizdeatils.batch
+        teacher_id = quizdeatils.teacher_id
+        sem= CoreStreams.objects.filter(course_id = course_id).first()
+        semester = sem.semester
+
+        studentDetail =  StudentsProfile.objects.filter(user_id = user_id).first()
+        if batch == studentDetail.batch and semester == studentDetail.semester:
+            return True
+        else:
+            return False
+    except Exception:
+        return False
+
 
 @login_required
 def quizdisplay(request, quiz_uuid):
     user_id = request.user.username
-    currentTime = datetime.datetime.now().time()
-    currentDate = datetime.date.today()
 
-    quizdeatils = Quiz_details.objects.filter(uuid=quiz_uuid).first()
-    starttime = quizdeatils.start_time
-    endtime = quizdeatils.end_time
-    startdate = quizdeatils.start_date
-    enddate = quizdeatils.end_date
+    if (not check_id(user_id)) or (not checkValidRequest(quiz_uuid, user_id)):
+        raise Http404("Invalid URL")
 
-    caltime =  convert_total_time(currentTime.strftime("%H:%M:%S"), endtime.strftime("%H:%M:%S"))
-    timer = (int)(caltime)
- 
-    quizResponseDeatils = response_table.objects.filter(uuid=quiz_uuid, sap_id=user_id).values()
+    try:    
+        currentTime = datetime.datetime.now().time()
+        currentDate = datetime.date.today()
 
-    if(startdate < currentDate < enddate):
-        if quizResponseDeatils.count() <= 0:
-            question = Quiz_Question_detail.objects.filter(uuid=quiz_uuid)
-            return render(request, 'student/Quiz_display.html', {'question': question,'quuid':quiz_uuid, 'timer':timer})
+        quizdeatils = Quiz_details.objects.filter(uuid=quiz_uuid).first()
+        starttime = quizdeatils.start_time
+        endtime = quizdeatils.end_time
+        startdate = quizdeatils.start_date
+        enddate = quizdeatils.end_date
+
+        caltime =  convert_total_time(currentTime.strftime("%H:%M:%S"), endtime.strftime("%H:%M:%S"))
+        timer = (int)(caltime)
+
+        quizResponseDeatils = response_table.objects.filter(uuid=quiz_uuid, sap_id=user_id).values()
+
+        if(startdate < currentDate < enddate):
+            if quizResponseDeatils.count() <= 0:
+                question = Quiz_Question_detail.objects.filter(uuid=quiz_uuid)
+                return render(request, 'student/Quiz_display.html', {'question': question,'quuid':quiz_uuid, 'timer':timer})
+            else:
+                return HttpResponse("you are already attempted this quiz.")
+
+        if starttime <= currentTime <= endtime and startdate <= currentDate <= enddate:
+
+            if quizResponseDeatils.count() <= 0:
+                question = Quiz_Question_detail.objects.filter(uuid=quiz_uuid)
+                return render(request, 'student/Quiz_display.html', {'question': question,'quuid':quiz_uuid, 'timer':timer})
+            else:
+                return HttpResponse("you are already attempted this quiz.")
         else:
-            return HttpResponse("you are already attempted this quiz.")
-
-    if starttime <= currentTime <= endtime and startdate <= currentDate <= enddate:
-    
-        if quizResponseDeatils.count() <= 0:
-            question = Quiz_Question_detail.objects.filter(uuid=quiz_uuid)
-            return render(request, 'student/Quiz_display.html', {'question': question,'quuid':quiz_uuid, 'timer':timer})
-        else:
-            return HttpResponse("you are already attempted this quiz.")
-    else:
-        if quizResponseDeatils.count() > 0:
-            return HttpResponse("you are already attempted this quiz.")
-        elif currentDate >= enddate:
-            if(currentDate == enddate and endtime < currentTime):
-                return HttpResponse("you are missed this quiz today.")
-            elif(currentDate > enddate):
-                return HttpResponse("you are missed this quiz.")
+            if quizResponseDeatils.count() > 0:
+                return HttpResponse("you are already attempted this quiz.")
+            elif currentDate >= enddate:
+                if(currentDate == enddate and endtime < currentTime):
+                    return HttpResponse("you are missed this quiz today.")
+                elif(currentDate > enddate):
+                    return HttpResponse("you are missed this quiz.")
+            
+            return HttpResponse("Quizzes are not be started.")
         
-        return HttpResponse("Quizzes are not be started.")
-    
+    except Exception:
+        raise Http404("Invalid Request")
+
 
 @login_required
 def studentCourseDetail(request, course_id):
-    user_id = request.user.username    
-    user_details = StudentsProfile.objects.filter(user_id=user_id).first()
-    batch = user_details.batch
+    user_id = request.user.username
 
-    teacher_details = TeacherCourse.objects.filter(course_id = course_id, batch= batch).first()
-    details = [ ]
+    if not check_id(user_id):
+        raise Http404("Invalid URL")
+    
+    try:
+        user_details = StudentsProfile.objects.filter(user_id=user_id).first()
+        batch = user_details.batch
+        semester = user_details.semester
 
-    if teacher_details:
-       Quizdetails = Quiz_details.objects.filter(teacher_id = teacher_details.teacher_id, course_id = course_id, batch= batch).values()
-       
-       for quiz in Quizdetails:
-            checkvalue = quizdisplaycheck(quiz['uuid'], user_id)
-            QuizStart = False
-            AlreadyAttempted = False
-            MissedQuiz = False
-            QuizNotStarted = False
+        # check user has permission to acceses courses or not
+        Cour_Detail =  CoreStreams.objects.filter(course_id = course_id, semester = semester).first()
+        if Cour_Detail is None:
+            raise Http404("Invalid URL")
+        elif not (course_id == Cour_Detail.course_id and semester == Cour_Detail.semester):
+            raise Http404("Invalid URL")
+        
+        teacher_details = TeacherCourse.objects.filter(course_id = course_id, batch= batch).first()
+        details = [ ]
 
-            if checkvalue == "QuizStart":
-                QuizStart = True
-            elif checkvalue == "AlreadyAttempted":
-                AlreadyAttempted = True
-            elif checkvalue == "MissedQuiz":
-                MissedQuiz = True
-            elif checkvalue == "QuizNotStarted":
-                QuizNotStarted = True
+        if teacher_details:
+            Quizdetails = Quiz_details.objects.filter(teacher_id = teacher_details.teacher_id, course_id = course_id, batch= batch).values()
 
-            quiz['QuizStart'] = QuizStart
-            quiz['AlreadyAttempted'] = AlreadyAttempted
-            quiz['MissedQuiz'] = MissedQuiz
-            quiz['QuizNotStarted'] = QuizNotStarted
-            
-            details.append(quiz)
-    else:
+            for quiz in Quizdetails:
+                checkvalue = quizdisplaycheck(quiz['uuid'], user_id)
+                QuizStart = False
+                AlreadyAttempted = False
+                MissedQuiz = False
+                QuizNotStarted = False
+
+                if checkvalue == "QuizStart":
+                    QuizStart = True
+                elif checkvalue == "AlreadyAttempted":
+                    AlreadyAttempted = True
+                elif checkvalue == "MissedQuiz":
+                    MissedQuiz = True
+                elif checkvalue == "QuizNotStarted":
+                    QuizNotStarted = True
+
+                quiz['QuizStart'] = QuizStart
+                quiz['AlreadyAttempted'] = AlreadyAttempted
+                quiz['MissedQuiz'] = MissedQuiz
+                quiz['QuizNotStarted'] = QuizNotStarted
+                
+                details.append(quiz)
+        # else:
+        #     coursecheckId= CoreStreams.objects.filter(course_id = course_id, semester = sem).first()
+        #     if coursecheckId is None:
+        #         raise Http404("The requested URL was rejected")
+
+        # set myquizes hight in run time
+        size = 0
+        if details:
+            size = len(details)
+
+        actualheightfcourses = 590
+        if(size > 3):   
+            actualheightfcourses += (510 * (math.ceil(size/3)-1))
+
+        showmessage = False
+        if(size == 0):
+            actualheightfcourses = 400
+            showmessage = True
+
+        return render(request, 'student/Quiz_detail.html', {'details': details, "actualheightfcourses": actualheightfcourses, "showmessage":showmessage})
+    
+    except Exception: 
         raise Http404("The requested URL was rejected")
-    
-    # set myquizes hight in run time
-    size = 0
-    if details:
-       size = len(details)
 
-    actualheightfcourses = 590
-    if(size > 3):   
-     actualheightfcourses += (510 * (math.ceil(size/3)-1))
-    
-    showmessage = False
-    if(size == 0):
-        actualheightfcourses = 400
-        showmessage = True
 
-    return render(request, 'student/Quiz_detail.html', {'details': details, "actualheightfcourses": actualheightfcourses, "showmessage":showmessage})
-
- 
 @login_required
 def submit_quiz(request,quiz_uuid):
     user_id = request.user.username
+
+    if (not check_id(user_id)) or (not checkValidRequest(quiz_uuid, user_id)):
+        raise Http404("The requested URL was rejected")
+
     certificated_id = uuid.uuid4()
     quizResponseDeatils = response_table.objects.filter(uuid=quiz_uuid, sap_id=user_id).values()
     
     quizresult_url = reverse('Quizresult', kwargs={'quiz_uuid': quiz_uuid})
 
     if quizResponseDeatils.count() > 0:
-
         return redirect(quizresult_url)
     
     if request.method == 'POST':
@@ -263,10 +328,10 @@ def submit_quiz(request,quiz_uuid):
         total_incorrect = 0
 
         questions = Quiz_Question_detail.objects.filter(uuid=quiz_uuid)
-        print(questions)
 
         for question in questions:
             selected_option = request.POST.get('q' + str(question.question_number))
+            ans = 'NA'
             if selected_option is not None:
                 ans = selected_option[7]
                 
@@ -282,7 +347,7 @@ def submit_quiz(request,quiz_uuid):
             sap_id=user_id,
             question_number= question.question_number,
             answer_key = question.correct_answer,
-            answer_marked = selected_option[7],
+            answer_marked = ans,
             your_time_taken = "0.50"
             )
 
@@ -301,10 +366,10 @@ def submit_quiz(request,quiz_uuid):
         )
 
         certificated_details.save()
-        
+        #quiz are submitted, redirect the result API
         return redirect(quizresult_url)
     else:
-        raise Http404("Invalid URL")
+        raise HttpResponse("Invalid URL")
 
 
 # functions return the informations of the Quiz
@@ -349,6 +414,10 @@ def quizdisplaycheck(quiz_uuid, user_id):
 @login_required
 def Quizresult(request, quiz_uuid):
     user_id = request.user.username
+
+    if (not check_id(user_id)) or (not checkValidRequest(quiz_uuid, user_id)):
+        raise Http404("The requested URL was rejected")
+    
     try:
         certificated_details = CompletionCertificates.objects.filter(uuid = quiz_uuid, sap_id = user_id).first()
         if certificated_details is None:
@@ -357,8 +426,10 @@ def Quizresult(request, quiz_uuid):
         certificated_id =certificated_details.certificate_id 
         result = response_table.objects.filter(uuid=quiz_uuid, sap_id = user_id).first()
         DetaisAnalysis = QuizDetailsResponse.objects.filter(uuid=quiz_uuid, sap_id = user_id).values()
+        size =  DetaisAnalysis.count()       
+        actualheightfcourses = 140 + (56 * size)
 
-        return render(request, 'student/Quiz_result.html', {'result' : result, 'DetaisAnalysis':DetaisAnalysis, 'certificated_id': certificated_id, 'quiz_uuid':quiz_uuid})
+        return render(request, 'student/Quiz_result.html', {'result' : result, 'DetaisAnalysis':DetaisAnalysis, 'certificated_id': certificated_id, 'quiz_uuid':quiz_uuid, 'actualheightfcourses':actualheightfcourses})
     except Exception:
         raise Http404("Page not found")
 
@@ -367,6 +438,9 @@ def Quizresult(request, quiz_uuid):
 @login_required
 def ViewQuizQues(request, questionNumber, quiz_uuid):
     user_id = request.user.username
+    if (not check_id(user_id)) or (not checkValidRequest(quiz_uuid, user_id)):
+        raise Http404("The requested URL was rejected")
+
     try:
         quizResponseDeatils = response_table.objects.filter(uuid=quiz_uuid, sap_id=user_id).values()
 
@@ -401,56 +475,74 @@ def quizCertificated(request, certificated_id):
         raise Http404("Invalid URL: Certificate not found")
 
 
-#Get notifications of student of all enrol courses
+# Get notifications of student of all enrol courses
 @login_required
 def notifications(request):
     user_id = request.user.username
-    user_details = StudentsProfile.objects.filter(user_id=user_id).first()
-    sem = user_details.semester
-    stream = user_details.stream
-    batch = user_details.batch
- 
-    course_details = CoreStreams.objects.filter(semester=sem, stream=stream).values()
-    details_list = []
+    if not check_id(user_id):
+        raise Http404("Invalid URL")
+    
+    try:
+        user_details = StudentsProfile.objects.filter(user_id=user_id).first()
+        sem = user_details.semester
+        stream = user_details.stream
+        batch = user_details.batch
+    
+        course_details = CoreStreams.objects.filter(semester=sem, stream=stream).values()
+        details_list = []
 
-    for course in course_details:
-        teacher_details = TeacherCourse.objects.filter(course_id=course['course_id'], batch=batch).first()
+        for course in course_details:
+            teacher_details = TeacherCourse.objects.filter(course_id=course['course_id'], batch=batch).first()
 
-        if teacher_details:
-            course_id = course['course_id']
-            course_name = course['course_name']
-            teacher_name = teacher_details.teacher.name
-            
-            quizzes = Quiz_details.objects.filter(teacher_id=teacher_details.teacher_id, course_id=course_id, batch=batch).values()
-            
-            for quiz in quizzes:
-                quiz['course_name'] = course_name
-                quiz['teacher_name'] = teacher_name
-                details_list.append(quiz)
+            if teacher_details:
+                course_id = course['course_id']
+                course_name = course['course_name']
+                teacher_name = teacher_details.teacher.name
+                
+                quizzes = Quiz_details.objects.filter(teacher_id=teacher_details.teacher_id, course_id=course_id, batch=batch).values()
+                
+                for quiz in quizzes:
+                    quiz['course_name'] = course_name
+                    quiz['teacher_name'] = teacher_name
+                    details_list.append(quiz)
 
-    size = len(details_list)
-    actualheightfnotification = 550
-    if size > 1:
-        actualheightfnotification = (529 * (size))
-    details_list.reverse()
+        size = len(details_list)
+        actualheightfnotification = 550
+        if size > 1:
+            actualheightfnotification = (529 * (size))
+        details_list.reverse()
 
-    showmessage = False
-    if(size == 0):
-        actualheightfcourses = 400
-        showmessage = True
+        showmessage = False
+        if(size == 0):
+            actualheightfcourses = 400
+            showmessage = True
 
-    return render(request, 'student/notifications.html', {'details_list': details_list, 'actualheightfnotification': actualheightfnotification})
+        return render(request, 'student/notifications.html', {'details_list': details_list, 'actualheightfnotification': actualheightfnotification})
+    except Exception:
+        raise HttpResponseNotFound("Invalid Request")
 
 @login_required
 def feedback(request):
+    user_id = request.user.username
+    if not check_id(user_id):
+        raise Http404("Invalid URL")
+
     return render(request, 'student/feedback.html')
 
 @login_required
 def help(request):
+    user_id = request.user.username
+    if not check_id(user_id):
+        raise Http404("Invalid URL")
+
     return HttpResponse('<h2>Working on Progress</h2>')
 
 @login_required
 def submit_feedback(request):
+    user_id = request.user.username
+    if not check_id(user_id):
+        raise Http404("Invalid URL")
+
     if request.method == 'POST':
         name = request.POST.get('name')
         email = request.POST.get('email')
@@ -475,5 +567,8 @@ def submit_feedback(request):
 
 
 def resources(request):
-    
+    user_id = request.user.username
+    if not check_id(user_id):
+        raise Http404("Invalid URL")
+       
     return render(request, 'student/resources.html')

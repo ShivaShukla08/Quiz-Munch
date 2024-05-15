@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Teacher Login</title>
-    <link rel="icon" type="image/x-icon" href="{% static 'student/images/logo-1.png' %}">
+    <link rel="icon" type="image/x-icon" href="{% static 'student/images/logo.png' %}">
     <link rel="stylesheet" href="{% static 'student/styles/styles.css' %}" />
 </head>
 
@@ -23,15 +23,15 @@
                 <div class="main-container">
                     <div class="username-container">
                         <label for="username" class="Username">Username</label>
-                        <input type="text" id="username" class="username-box" name="username" placeholder="">
+                        <input type="text" id="username" class="username-box" name="username" placeholder="Enter Username" required>
                     </div>
                     <div class="password-container">
                         <label for="password" class="Password">
                             <span class="Password">
-                                Passwordsw
+                                Password
                             </span>
                         </label>
-                        <input type="password" class="password-box" id="password" name="password" placeholder=" ">
+                        <input type="password" class="password-box" id="password" name="password" placeholder="Enter Password" required>
                     </div>
 
                     <div class="Remember-container">

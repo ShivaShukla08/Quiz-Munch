@@ -13,10 +13,18 @@ import pytz  # If you need to work with time zones
 from datetime import datetime
 from django.contrib import messages
 from student.models import response_table, StudentsProfile, CoreStreams
-from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect, Http404
 from openpyxl import Workbook
 from django.contrib import messages
 from openpyxl.styles import Font, Alignment
+
+#check valid user
+def check_id(username):
+    id = str(username)  
+    if id[0] == '6':
+        return True
+    else:
+        return False
 
 
 def teacher_login(request):
@@ -27,20 +35,21 @@ def teacher_login(request):
         try:
             user = User.objects.get(username=username)
         except:
-            print('Username does not exist')
+            return HttpResponse('<h1>Username does not exist<h1>')
 
         user = authenticate(request,username=username,password=password)
 
-        if user is not None:
+        if user is not None and check_id(username):
             id = username
             login(request, user)
             return redirect('teacher_home')
         else:
-            print('Username or password is incorrect')
+            return HttpResponse('<h1>Username or password is incorrect</h1>')
     page = 'login'
     context = {'page':page}
     return render(request,'teacher/login.html',context)
 
+@login_required
 def logoutuser(request):
     logout(request)
     messages.info(request,'User was logged out')
@@ -50,83 +59,103 @@ def logoutuser(request):
 @login_required
 def home(request):
     user_id = request.user.username
-    details = TeacherCourse.objects.filter(tid=user_id).values()
+    if not check_id(user_id):
+        raise Http404("Invalid URL")
     
-    teachername = TeacherProfile.objects.filter(id=user_id).values('name').first()
-    teacher_name = teachername['name']
+    try:
+        details = TeacherCourse.objects.filter(tid=user_id).values()
+        teachername = TeacherProfile.objects.filter(id=user_id).values('name').first()
+        teacher_name = teachername['name']
 
-    # set total no of quizzes in particular course
-    for course in details:
-        Quiz = Quiz_details.objects.filter(teacher_id = course['tid'], course_id = course['course_id'], batch= course['batch']).values()
-        course['total_quiz'] = Quiz.count()
-        sem = CoreStreams.objects.filter(course_id = course['course_id']).values('semester').first()
-        if sem:
-            course['semester'] = sem['semester']
-        else:
-            course['semester'] = 'NA'
+        # set total no of quizzes in particular course
+        for course in details:
+            Quiz = Quiz_details.objects.filter(teacher_id = course['tid'], course_id = course['course_id'], batch= course['batch']).values()
+            course['total_quiz'] = Quiz.count()
+            sem = CoreStreams.objects.filter(course_id = course['course_id']).values('semester').first()
+            if sem:
+                course['semester'] = sem['semester']
+            else:
+                course['semester'] = 'NA'
 
-    # set myCouses hight in run time
-    size =  details.count()
-    actualheightfcourses = 760
-    if(size > 3):   
-     actualheightfcourses += (600 * (math.ceil(size/3)-1))
-     
-    return render(request, 'teacher/home.html', {'details': details, 'actualheightfcourses':actualheightfcourses, 'teacher_name':teacher_name})
+        # set myCouses hight in run time
+        size =  details.count()
+        actualheightfcourses = 760
+        if(size > 3):   
+          actualheightfcourses += (600 * (math.ceil(size/3)-1))
+        
+        return render(request, 'teacher/home.html', {'details': details, 'actualheightfcourses':actualheightfcourses, 'teacher_name':teacher_name})
+    except Exception:
+        raise Http404("Invalid URL")
 
+#check when course_detail are API called, user have permission to access or not
+def checkCoursesPermission(course_id, user_id):
+    Details = TeacherCourse.objects.filter(course_id=course_id, teacher_id=user_id).values()
+    if Details:
+        for detail in Details:
+            if detail['course_id'] == course_id:
+                print(detail['course_id'])
+                return True
+    print("Hello")            
+    return False
 
 @login_required
 def course_detail(request, course_id):
     tid = request.user.username
-    details = Quiz_details.objects.filter(course_id=course_id, teacher_id=tid)
-    print(details)
-    size =  details.count()
-    actualheightfcourses = 650
+    if (not check_id(tid)) or (not checkCoursesPermission(course_id, tid)):
+        raise Http404("Invalid URL")
     
-    if(size > 3):   
-     actualheightfcourses += (580 * (math.ceil(size/3)-1))
-    showmessage = False
-    if(size == 0):
-        actualheightfcourses = 400
-        showmessage = True
+    try:
+        details = Quiz_details.objects.filter(course_id=course_id, teacher_id=tid)
+        size =  details.count()
+        actualheightfcourses = 650
+        
+        if(size > 3):   
+           actualheightfcourses += (580 * (math.ceil(size/3)-1))
+        showmessage = False
+        if(size == 0):
+            actualheightfcourses = 400
+            showmessage = True
 
+        if request.method == 'POST':
+            # Check if the quiz has been uploaded
+            if 'upload_quiz' in request.POST:
+                quiz_id = request.POST.get('quiz_id')
+                quiz = Quiz_details.objects.get(uuid=quiz_id)
+                if not quiz.upload:
+                    # Perform the upload action
+                    quiz.upload = True
+                    quiz.save()
+                    messages.success(request, 'Quiz uploaded successfully!')
+                else:
+                    messages.warning(request, 'Quiz has already been uploaded.')
 
-    if request.method == 'POST':
-        # Check if the quiz has been uploaded
-        if 'upload_quiz' in request.POST:
-            quiz_id = request.POST.get('quiz_id')
-            quiz = Quiz_details.objects.get(uuid=quiz_id)
-            if not quiz.upload:
-                # Perform the upload action
-                quiz.upload = True
-                quiz.save()
-                messages.success(request, 'Quiz uploaded successfully!')
-            else:
-                messages.warning(request, 'Quiz has already been uploaded.')
-
-    return render(request, 'teacher/course_detail.html', {'details': details, 'actualheightfcourses':actualheightfcourses, 'showmessage':showmessage})
-
+        return render(request, 'teacher/course_detail.html', {'details': details, 'actualheightfcourses':actualheightfcourses, 'showmessage':showmessage})
+    except Exception:
+        raise Http404("Invalid URL")
 
 @login_required
 def student_enrol(request, course_id, batch, semester):
     tid = request.user.username
+    if not check_id(tid):
+        raise Http404("Invalid URL")
     
     try:
-        semester = int(semester)
-        # Check if batch is not assigned
-        if not batch:
-            raise ValueError
-    except ValueError:
-        # Handle the error
-        return HttpResponse("Your are not assigned any Batch or semester.")
+        detail = TeacherCourse.objects.filter(batch = batch, course_id = course_id).first()    
+        if detail is None or not (tid == detail.tid) :
+            raise Http404("The Request are Invalid")
 
-    Studentdetails = StudentsProfile.objects.filter(semester=semester, batch=batch).values()
-    print(Studentdetails)
-    print("hello")
-    return render(request, 'teacher/student_enrol_details.html', {'Studentdetails': Studentdetails})
+        Studentdetails = StudentsProfile.objects.filter(semester=semester, batch=batch).values()
 
+        return render(request, 'teacher/student_enrol_details.html', {'Studentdetails': Studentdetails})
+    except Exception:
+        raise Http404("Request are Invalid")
 
 @login_required
 def upload_quiz(request, course_uuid):
+    user_id = request.user.username
+    if not check_id(user_id):
+        raise Http404("Invalid URL")
+    
     try:
         quiz = Quiz_details.objects.get(uuid=course_uuid)
         quiz.upload = True
@@ -139,6 +168,10 @@ def upload_quiz(request, course_uuid):
 
 @login_required
 def create_quiz(request):
+    user_id = request.user.username
+    if not check_id(user_id):
+        raise Http404("Invalid URL")
+    
     if request.method == 'POST':
         form = QuizForm(request.POST, request.FILES)
         tid = request.user.username
@@ -254,20 +287,48 @@ def create_quiz(request):
     details = TeacherCourse.objects.filter(tid=user_id)
     return render(request, 'teacher/create_quiz.html', {'details': details})
 
+
+#API call in teacher App --> check user have permission to acceses or not
+def checkValidRequest(quiz_uuid, user_id):
+    try:
+        quiz = Quiz_details.objects.filter(uuid=quiz_uuid).first()
+        teacher_id = quiz.teacher_id
+        if teacher_id == user_id:
+            return True
+        else:
+            return False
+    except Exception:
+        return False
+
+
 @login_required
 def quizquestions(request,quiz_uuid):
+    user_id = request.user.username
+    if (not check_id(user_id)) or (not checkValidRequest(quiz_uuid, user_id)):
+        raise Http404("Invalid URL")
+
     questions = Quiz_Question_detail.objects.filter(uuid=quiz_uuid)
     return render(request, 'teacher/quiz_display.html', {'questions': questions, 'quiz_uuid':quiz_uuid})
 
 
 @login_required
 def question_popup(request, questionNumber, quiz_uuid):
+    user_id = request.user.username
+    if (not check_id(user_id)) or (not checkValidRequest(quiz_uuid, user_id)):
+        raise Http404("Invalid URL")
+
     questions = Quiz_Question_detail.objects.filter(uuid=quiz_uuid, question_number= questionNumber)
-    return render(request, 'teacher/question_popup.html', {'questions': questions, 'uuid':quiz_uuid})
+    if questions:
+       return render(request, 'teacher/question_popup.html', {'questions': questions, 'uuid':quiz_uuid})
+    else:
+        raise Http404("Page Not Found")
 
 
 @login_required
 def saveChangesQuestion(request, quiz_uuid):
+    user_id = request.user.username
+    if (not check_id(user_id)) or (not checkValidRequest(quiz_uuid, user_id)):
+        raise Http404("Invalid URL")
    
     if request.method == 'POST':
         question_number = request.POST.get('question_number')
@@ -293,101 +354,110 @@ def saveChangesQuestion(request, quiz_uuid):
                 return HttpResponse("<h2>Question Updated Successfully</h2>")
             else:
                 return HttpResponse("<h2>Question Not Found</h2>")
-        except Exception as e:
-            return HttpResponseNotFound()
+        except Exception:
+            return HttpResponseNotFound("Invalid URL")
         
     # Handle cases like GET requests
-    return HttpResponseNotFound()
+    return HttpResponseNotFound("Technical Error")
 
 
 @login_required
 def delete_quiz(request, quiz_uuid):
-    responsedata = response_table.objects.filter(uuid = quiz_uuid)
-    QuizQuestiondata = Quiz_Question_detail.objects.filter(uuid = quiz_uuid)
-    Quizdetailsdata = Quiz_details.objects.filter(uuid = quiz_uuid)
-    print('responsedata', responsedata)
-    print('QuizQuestiondata', QuizQuestiondata)
-    print('Quizdetailsdata', Quizdetailsdata)
+    user_id = request.user.username
+    if (not check_id(user_id)) or (not checkValidRequest(quiz_uuid, user_id)):
+        raise Http404("Invalid URL")
+    try:
+        responsedata = response_table.objects.filter(uuid = quiz_uuid)
+        QuizQuestiondata = Quiz_Question_detail.objects.filter(uuid = quiz_uuid)
+        Quizdetailsdata = Quiz_details.objects.filter(uuid = quiz_uuid)
 
-    # Delete data from each table
-    responsedata.delete()
-    QuizQuestiondata.delete()
-    Quizdetailsdata.delete()
+        # Delete data from each table
+        responsedata.delete()
+        QuizQuestiondata.delete()
+        Quizdetailsdata.delete()
 
-    return HttpResponse("quiz deleted suceesfullly")
+        return HttpResponse("quiz deleted suceesfullly")
+    except Exception:
+        raise HttpResponseNotFound("<h1>Facing Technical Issuse</h1>")
+
 
 @login_required
 def teacherprofile(request):
     user_id = request.user.username
+    if not check_id(user_id):
+        raise Http404("Invalid URL")
+    
     profile_details = TeacherProfile.objects.filter(id=user_id).values()
     return render(request, 'teacher/profile.html', {"profile_details": profile_details})
 
 
 @login_required
 def studentresults(request, quiz_uuid):
-    responses = response_table.objects.filter(uuid=quiz_uuid)
-    # print(responses)
-    student_scores = { }
+    user_id = request.user.username
+    if (not check_id(user_id)) or (not checkValidRequest(quiz_uuid, user_id)):
+        raise Http404("Invalid URL")
+    try:
+        responses = response_table.objects.filter(uuid=quiz_uuid)
+        student_scores = { }
 
-    for response in responses:
-        sap_id = response.sap_id
-        student_profile = StudentsProfile.objects.filter(user_id=sap_id).first()
-        score = response.total_correct
-        incorrect = response.total_incorrect
-        if student_profile:
-            student_scores[student_profile.name] = {'sap_id': sap_id, 'score': score, 'incorrect':incorrect}    
-    print(student_scores)
+        for response in responses:
+            sap_id = response.sap_id
+            student_profile = StudentsProfile.objects.filter(user_id=sap_id).first()
+            score = response.total_correct
+            incorrect = response.total_incorrect
+            if student_profile:
+                student_scores[student_profile.name] = {'sap_id': sap_id, 'score': score, 'incorrect':incorrect}    
 
-    quizid = quiz_uuid
-    
-    return render(request, 'teacher/student_results.html', {'student_scores': student_scores, 'quizid': quizid})
+        quizid = quiz_uuid
+        return render(request, 'teacher/student_results.html', {'student_scores': student_scores, 'quizid': quizid})
+    except Exception:
+        raise HttpResponseNotFound("<h1>Facing Some Technical Issuse</h1>")
 
 
 @login_required
 def generate_excel(request, quizid):
-    # Create a new Workbook
-    wb = Workbook()
-    ws = wb.active
+    user_id = request.user.username
+    if (not check_id(user_id)) or (not checkValidRequest(quizid, user_id)):
+        raise Http404("Invalid URL")
     
-    responses = response_table.objects.filter(uuid=quizid)
-    
-    student_scores = {}
+    try:
+        wb = Workbook()
+        ws = wb.active    
+        responses = response_table.objects.filter(uuid=quizid)
+        
+        student_scores = {}
+        for response in responses:
+            sap_id = response.sap_id
+            student_profile = StudentsProfile.objects.filter(user_id=sap_id).first()
+            score = response.total_correct
+            incorrect = response.total_incorrect
+            if student_profile:
+                student_scores[student_profile.name] = {'sap_id': sap_id, 'score': score, 'incorrect':incorrect}    
 
-    for response in responses:
-        sap_id = response.sap_id
-        student_profile = StudentsProfile.objects.filter(user_id=sap_id).first()
-        score = response.total_correct
-        incorrect = response.total_incorrect
-        if student_profile:
-            student_scores[student_profile.name] = {'sap_id': sap_id, 'score': score, 'incorrect':incorrect}    
+        # Add headings to data
+        data = [
+            ['Student Name', 'SAP ID', 'Score', 'Incorrect Question']
+        ]
 
-    print(student_scores)
+        ws.append(['Student Name', 'SAP ID', 'Score', 'Incorrect Question'])
 
-    # Sample data
-    # Add headings to data
-    data = [
-        ['Student Name', 'SAP ID', 'Score', 'Incorrect Question']
-    ]
+        # Write data to worksheet
+        for student_name, data in student_scores.items():
+            ws.append([student_name, data['sap_id'], data['score'], data['incorrect']])
 
-    ws.append(['Student Name', 'SAP ID', 'Score', 'Incorrect Question'])
+        # Apply formatting
+        header_font = Font(bold=True)
+        header_alignment = Alignment(horizontal='center')
+        for cell in ws[1]:
+            cell.font = header_font
+            cell.alignment = header_alignment
 
-    # Write data to worksheet
-    for student_name, data in student_scores.items():
-        # ws.append(['Student Name', 'SAP ID', 'Score', 'Incorrect Question'])
-        ws.append([student_name, data['sap_id'], data['score'], data['incorrect']])
+        # Set response headers
+        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = 'attachment; filename=my_excel_file.xlsx'
 
-    # Apply formatting
-    header_font = Font(bold=True)
-    header_alignment = Alignment(horizontal='center')
-    for cell in ws[1]:
-        cell.font = header_font
-        cell.alignment = header_alignment
-
-    # Set response headers
-    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = 'attachment; filename=my_excel_file.xlsx'
-
-    # Save workbook to response
-    wb.save(response)
-
-    return response
+        # Save workbook to response
+        wb.save(response)
+        return response
+    except Exception:
+        raise HttpResponseNotFound("<h1>Facing Some Technical Issuse</h1>")
